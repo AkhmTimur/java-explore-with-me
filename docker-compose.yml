@@ -9,7 +9,7 @@ services:
       - stats-server-db
     container_name: stats-server
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-server-db:5432/stats-server
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-server-db:5432/stats-server-db
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
 
