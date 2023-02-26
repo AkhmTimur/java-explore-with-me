@@ -20,7 +20,7 @@ public interface StatServerRepository extends JpaRepository<Hit, Long> {
 
     @Query("SELECT new ru.practicum.ewm.stats.dto.HitCountDto(h.app, h.uri, COUNT(h.id))" +
             "FROM Hit h " +
-            "WHERE h.timestamp BETWEEN ?1 AND ?2 AND h.uri IN ?3" +
+            "WHERE h.timestamp BETWEEN ?1 AND ?2 AND h.uri IN (?3)" +
             "GROUP BY h.app, h.uri " +
             "ORDER BY COUNT(h.id) DESC ")
     List<HitCountDto> getStatsCreatedBetweenWithUris(LocalDateTime start, LocalDateTime end, Collection<String> uris);
@@ -34,7 +34,7 @@ public interface StatServerRepository extends JpaRepository<Hit, Long> {
 
     @Query("SELECT new ru.practicum.ewm.stats.dto.HitCountDto(h.app, h.uri, COUNT(DISTINCT h.id))" +
             "FROM Hit h " +
-            "WHERE h.timestamp BETWEEN ?1 AND ?2 AND h.uri IN ?3 " +
+            "WHERE h.timestamp BETWEEN ?1 AND ?2 AND h.uri IN (?3) " +
             "GROUP BY h.app, h.uri " +
             "ORDER BY COUNT(DISTINCT h.id) DESC ")
     List<HitCountDto> getStatsCreatedBetweenWithUrisUnique(LocalDateTime start, LocalDateTime end, Collection<String> uris);
