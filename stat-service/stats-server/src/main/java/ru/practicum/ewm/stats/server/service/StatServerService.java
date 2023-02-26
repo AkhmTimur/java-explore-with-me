@@ -23,14 +23,14 @@ public class StatServerService {
     }
 
     public List<HitCountDto> getStats(LocalDateTime start, LocalDateTime end, boolean unique) {
-        if(unique) {
+        if (unique) {
             return repository.getStatsCreatedBetweenUnique(start, end);
         }
         return repository.getStatsCreatedBetween(start, end);
     }
 
     public List<HitCountDto> getStatsWithUris(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
-        if(unique) {
+        if (unique) {
             return repository.getStatsCreatedBetweenWithUrisUnique(start, end, uris);
         }
         return repository.getStatsCreatedBetweenWithUris(start, end, uris);

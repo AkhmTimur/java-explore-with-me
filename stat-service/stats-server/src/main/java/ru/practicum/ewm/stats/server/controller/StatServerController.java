@@ -23,7 +23,7 @@ public class StatServerController {
 
     @PostMapping("/hit")
     public ResponseEntity<HitDto> createHit(@RequestBody HitDto hit) {
-        return new ResponseEntity<>(statServerService.createHit(hit), HttpStatus.CREATED) ;
+        return new ResponseEntity<>(statServerService.createHit(hit), HttpStatus.CREATED);
     }
 
     @GetMapping("/stats")
@@ -33,7 +33,7 @@ public class StatServerController {
                                                       @RequestParam(defaultValue = "false") boolean unique) {
         return uris.map(u -> new ResponseEntity<>(
                 statServerService.getStatsWithUris(start, end, u, unique), HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(
-                        statServerService.getStats(start, end, unique), HttpStatus.OK));
+                statServerService.getStats(start, end, unique), HttpStatus.OK));
 
     }
 }
