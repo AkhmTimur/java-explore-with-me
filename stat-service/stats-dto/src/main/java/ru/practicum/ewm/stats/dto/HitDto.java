@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import ru.practicum.ewm.stats.utils.DateTimeFormatPattern;
 
-import javax.persistence.ManyToOne;
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
