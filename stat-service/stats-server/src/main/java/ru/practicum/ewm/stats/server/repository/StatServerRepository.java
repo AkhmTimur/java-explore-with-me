@@ -14,28 +14,28 @@ public interface StatServerRepository extends JpaRepository<Hit, Long> {
     @Query("SELECT new ru.practicum.ewm.stats.dto.HitCountDto(h.app.appName, h.uri, COUNT(h.id))" +
             "FROM Hit h " +
             "WHERE h.timestamp BETWEEN ?1 AND ?2 " +
-            "GROUP BY h.app, h.uri " +
+            "GROUP BY h.app.appName, h.uri " +
             "ORDER BY COUNT(h.id) DESC ")
     List<HitCountDto> getStatsCreatedBetween(LocalDateTime start, LocalDateTime end);
 
     @Query("SELECT new ru.practicum.ewm.stats.dto.HitCountDto(h.app.appName, h.uri, COUNT(h.id))" +
             "FROM Hit h " +
             "WHERE h.timestamp BETWEEN ?1 AND ?2 AND h.uri IN (?3)" +
-            "GROUP BY h.app, h.uri " +
+            "GROUP BY h.app.appName, h.uri " +
             "ORDER BY COUNT(h.id) DESC ")
     List<HitCountDto> getStatsCreatedBetweenWithUris(LocalDateTime start, LocalDateTime end, Collection<String> uris);
 
     @Query("SELECT new ru.practicum.ewm.stats.dto.HitCountDto(h.app.appName, h.uri, COUNT(DISTINCT h.id))" +
             "FROM Hit h " +
             "WHERE h.timestamp BETWEEN ?1 AND ?2 " +
-            "GROUP BY h.app, h.uri " +
+            "GROUP BY h.app.appName, h.uri " +
             "ORDER BY COUNT(DISTINCT h.id) DESC ")
     List<HitCountDto> getStatsCreatedBetweenUnique(LocalDateTime start, LocalDateTime end);
 
     @Query("SELECT new ru.practicum.ewm.stats.dto.HitCountDto(h.app.appName, h.uri, COUNT(DISTINCT h.id))" +
             "FROM Hit h " +
             "WHERE h.timestamp BETWEEN ?1 AND ?2 AND h.uri IN (?3) " +
-            "GROUP BY h.app, h.uri " +
+            "GROUP BY h.app.appName, h.uri " +
             "ORDER BY COUNT(DISTINCT h.id) DESC ")
     List<HitCountDto> getStatsCreatedBetweenWithUrisUnique(LocalDateTime start, LocalDateTime end, Collection<String> uris);
 }
