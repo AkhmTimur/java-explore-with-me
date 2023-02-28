@@ -17,7 +17,7 @@ public class HitMapper {
 
     public Hit dtoToHit(HitDto hitDto) {
         Optional<App> app = appRepository.findByAppName(hitDto.getApp());
-        if(app.isPresent()) {
+        if (app.isPresent()) {
             return new Hit(null, app.get(), hitDto.getUri(), hitDto.getIp(), hitDto.getTimestamp());
         } else {
             App newApp = appRepository.save(new App(hitDto.getApp()));
