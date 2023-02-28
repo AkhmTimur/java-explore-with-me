@@ -6,12 +6,13 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.ewm.stats.client.BaseClient;
 import ru.practicum.ewm.stats.dto.HitDto;
+import ru.practicum.ewm.stats.dto.HitInDto;
+import ru.practicum.ewm.stats.utils.DateTimeFormatPattern;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public class StatsClient extends BaseClient {
 
@@ -24,17 +25,21 @@ public class StatsClient extends BaseClient {
         return post("/hit", hitInDto);
     }
 
-    public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end, Optional<List<String>> uri, boolean unique) {
+    public ResponseEntity<Object> getStats(HitInDto hitInDto) {
+        List<String> uri = hitInDto.getUri();
+        LocalDateTime start = hitInDto.getStart();
+        LocalDateTime end = hitInDto.getEnd();
+        boolean unique = hitInDto.isUnique();
         String path;
         Map<String, Object> parameters;
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DateTimeFormatPattern.TIME_PATTERN);
 
-        if (uri.isPresent()) {
+        if (!uri.isEmpty()) {
             path = "/stats?start={start}&end={end}&uri={uri}&unique={unique}";
             parameters = Map.of(
                     "start", start.format(formatter),
                     "end", end.format(formatter),
-                    "uri", uri.get(),
+                    "uri", uri,
                     "unique", unique
             );
         } else {

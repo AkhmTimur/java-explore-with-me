@@ -1,12 +1,11 @@
 package ru.practicum.ewm.stats.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
+@Getter
+@Setter
 public class HitCountDto {
     private String app;
     private String uri;

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.stats.dto.HitCountDto;
 import ru.practicum.ewm.stats.dto.HitDto;
 import ru.practicum.ewm.stats.server.service.StatServerService;
-import ru.practicum.ewm.stats.server.utils.DateTimeFormatPattern;
+import ru.practicum.ewm.stats.utils.DateTimeFormatPattern;
 
 import java.time.LocalDateTime;
 import java.util.List;

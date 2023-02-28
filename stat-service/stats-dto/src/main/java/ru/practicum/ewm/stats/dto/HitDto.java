@@ -1,16 +1,16 @@
 package ru.practicum.ewm.stats.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import lombok.*;
+import ru.practicum.ewm.stats.utils.DateTimeFormatPattern;
 
+import javax.persistence.ManyToOne;
 import java.time.LocalDateTime;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class HitDto {
     @NonNull
     private String app;
@@ -18,6 +18,6 @@ public class HitDto {
     private String uri;
     @NonNull
     private String ip;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = DateTimeFormatPattern.TIME_PATTERN)
     private LocalDateTime timestamp;
 }

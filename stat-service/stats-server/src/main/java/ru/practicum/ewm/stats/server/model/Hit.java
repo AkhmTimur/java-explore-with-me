@@ -1,6 +1,8 @@
 package ru.practicum.ewm.stats.server.model;
 
 import lombok.*;
+import ru.practicum.ewm.stats.server.mapper.App;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
@@ -14,7 +16,8 @@ public class Hit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String app;
+    @ManyToOne
+    private App app;
     private String uri;
     private String ip;
     @Column(name = "created")
