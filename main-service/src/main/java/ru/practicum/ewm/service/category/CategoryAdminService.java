@@ -15,17 +15,16 @@ import javax.validation.ConstraintViolationException;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CategoryAdminService {
     private final CategoryRepository categoryRepository;
     private final EventRepository eventRepository;
 
-    @Transactional
     public Category adminCreateCategory(Category category) {
         categoryRepository.findByName(category.getName()).orElseThrow(() -> new BadRequestException("Category with this name already exists"));
         return categoryRepository.save(category);
     }
 
-    @Transactional
     public ResponseEntity<Object> adminDeleteCategory(Long categoryId) {
         categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new NotFoundException("Category " + categoryId + " not found"));
@@ -35,7 +34,6 @@ public class CategoryAdminService {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @Transactional
     public Category adminUpdateCategory(Category category, Long catId) {
         categoryRepository.findById(catId)
                 .orElseThrow(() -> new NotFoundException("Category " + category + " not found"));

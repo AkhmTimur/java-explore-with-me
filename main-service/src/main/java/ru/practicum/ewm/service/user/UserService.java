@@ -33,13 +33,11 @@ public class UserService {
         userRepository.deleteById(userId);
     }
 
-    @Transactional
     public List<UserDto> getUsers(List<Long> ids) {
         List<User> users = userRepository.findAllById(ids);
         return users.stream().map(UserMapper::userToDto).collect(Collectors.toList());
     }
 
-    @Transactional
     public List<UserDto> getAllUsers(long id, int size) {
         PageRequest pageRequest = PageRequest.of(0, size);
         List<User> users = userRepository.findAllByIdIsGreaterThanEqual(id, pageRequest);
