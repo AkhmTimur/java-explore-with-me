@@ -8,12 +8,10 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.exception.BadRequestException;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.model.category.Category;
-import ru.practicum.ewm.model.event.Event;
 import ru.practicum.ewm.repository.category.CategoryRepository;
 import ru.practicum.ewm.repository.event.EventRepository;
 
 import javax.validation.ConstraintViolationException;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

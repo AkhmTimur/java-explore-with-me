@@ -77,7 +77,7 @@ public class CompilationAdminService {
         return updatedCompilationDto;
     }
 
-    private void setViewsToEvents(Compilation compilation, CompilationDto compilationDto ) {
+    private void setViewsToEvents(Compilation compilation, CompilationDto compilationDto) {
         Map<Long, Long> views = eventCommonService.getStats(compilation.getEvents(), false);
         if (!views.isEmpty()) {
             compilationDto.getEvents().forEach(e -> e.setViews(views.get(e.getId())));

@@ -17,7 +17,7 @@ public class EventRepositoryCBImpl {
     private EntityManager entityManager;
 
     public List<Event> publicSearch(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
-                            LocalDateTime rangeEnd, long from, int size) {
+                                    LocalDateTime rangeEnd, long from, int size) {
 
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Event> query = cb.createQuery(Event.class);
@@ -25,8 +25,8 @@ public class EventRepositoryCBImpl {
         Predicate predicate = cb.conjunction();
 
         if (!text.isEmpty()) {
-            Predicate annotation = cb.like(cb.lower(event.get("annotation")), "%"+text.toLowerCase()+"%");
-            Predicate description = cb.like(cb.lower(event.get("description")), "%"+text.toLowerCase()+"%");
+            Predicate annotation = cb.like(cb.lower(event.get("annotation")), "%" + text.toLowerCase() + "%");
+            Predicate description = cb.like(cb.lower(event.get("description")), "%" + text.toLowerCase() + "%");
             Predicate hasText = cb.or(description, annotation);
             predicate = cb.and(predicate, hasText);
         }

@@ -17,9 +17,11 @@ import ru.practicum.ewm.util.Sort;
 import ru.practicum.ewm.validator.EntityValidator;
 
 import javax.servlet.http.HttpServletRequest;
-
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static ru.practicum.ewm.mapper.EventMapper.eventToEventFullDto;
@@ -36,7 +38,7 @@ public class EventPublicService {
     @Transactional
     public EventFullDto getEvent(Long eventId, HttpServletRequest request) {
         Event event = entityValidator.getEventIfExist(eventId);
-        if(!event.getState().equals(EventState.PUBLISHED)) {
+        if (!event.getState().equals(EventState.PUBLISHED)) {
             throw new NotFoundException(event + " not found");
         }
         EventFullDto eventFullDto = eventToEventFullDto(event);
@@ -59,7 +61,7 @@ public class EventPublicService {
     public List<EventFullDto> search(String text, List<Long> categories, Boolean paid, LocalDateTime start, LocalDateTime end,
                                      Boolean available, Sort sort, Long from, Integer size, String ip) {
         List<Event> events = eventRepository.publicSearch(text, categories, paid, start, end, from, size);
-        if(events.isEmpty()) {
+        if (events.isEmpty()) {
             return Collections.emptyList();
         }
         List<EventFullDto> eventFullDtos = events.stream()
@@ -77,7 +79,7 @@ public class EventPublicService {
             hitDto.setUri("/events/" + e.getId());
             statsClient.createHit(hitDto);
         });
-        if(sort != null && sort.equals(Sort.VIEWS)) {
+        if (sort != null && sort.equals(Sort.VIEWS)) {
             return eventFullDtos.stream()
                     .sorted(Comparator.comparing(EventFullDto::getViews)).collect(Collectors.toList());
         }

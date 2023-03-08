@@ -1,8 +1,8 @@
 package ru.practicum.ewm.model.event;
 
 import lombok.*;
-import ru.practicum.ewm.model.user.User;
 import ru.practicum.ewm.model.category.Category;
+import ru.practicum.ewm.model.user.User;
 import ru.practicum.ewm.util.EventState;
 
 import javax.persistence.*;

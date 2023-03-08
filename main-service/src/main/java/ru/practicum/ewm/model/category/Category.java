@@ -1,10 +1,8 @@
 package ru.practicum.ewm.model.category;
 
-import com.sun.istack.NotNull;
 import lombok.*;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "categories")

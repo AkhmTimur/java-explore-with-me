@@ -33,19 +33,19 @@ public class RequestService {
     public ParticipationRequestDto addRequest(Long eventId, Long userId) {
         User user = entityValidator.getUserIfExist(userId);
         Event event = entityValidator.getEventIfExist(eventId);
-        if(event.getInitiator().equals(user)) {
+        if (event.getInitiator().equals(user)) {
             throw new DataConflictException("Request couldn't be created by initiator");
         }
 
         Optional<ParticipationRequest> request = requestRepository.findByEventIdAndRequesterId(eventId, userId);
-        if(request.isPresent()) {
+        if (request.isPresent()) {
             throw new DataConflictException("Request already exists");
         }
-        if(!event.getState().equals((EventState.PUBLISHED))) {
+        if (!event.getState().equals((EventState.PUBLISHED))) {
             throw new DataConflictException("Couldn't created request for not published event");
         }
         List<ParticipationRequest> requests = findConfirmedRequests(List.of(event));
-        if(requests.size() == event.getParticipantLimit()) {
+        if (requests.size() == event.getParticipantLimit()) {
             throw new DataConflictException("Reached event's limit of requests");
         }
 
@@ -55,7 +55,7 @@ public class RequestService {
                 .requester(user)
                 .build();
 
-        if(!event.isRequestModeration() || event.getParticipantLimit() == 0) {
+        if (!event.isRequestModeration() || event.getParticipantLimit() == 0) {
             participationRequest.setStatus(RequestStatus.CONFIRMED);
         } else {
             participationRequest.setStatus(RequestStatus.PENDING);
@@ -72,7 +72,7 @@ public class RequestService {
     public ParticipationRequestDto cancelRequest(Long requestId, Long userId) {
         User user = entityValidator.getUserIfExist(userId);
         ParticipationRequest request = entityValidator.getRequestIfExist(requestId);
-        if(!user.equals(request.getRequester())) {
+        if (!user.equals(request.getRequester())) {
             throw new DataConflictException("Only requester can cancel request");
         }
         request.setStatus(RequestStatus.CANCELED);
@@ -89,7 +89,7 @@ public class RequestService {
     public List<ParticipationRequestDto> getEventRequest(Long eventId, Long userId) {
         Event event = entityValidator.getEventIfExist(eventId);
         User user = entityValidator.getUserIfExist(userId);
-        if(!user.equals(event.getInitiator())) {
+        if (!user.equals(event.getInitiator())) {
             throw new DataConflictException("User isn't initiator");
         }
         List<ParticipationRequest> requests = requestRepository.findAllByEventId(eventId);
@@ -100,10 +100,10 @@ public class RequestService {
     public EventRequestStatusUpdateResult update(Long eventId, Long userId, EventRequestStatusUpdateRequest request) {
         Event event = entityValidator.getEventIfExist(eventId);
         User user = entityValidator.getUserIfExist(userId);
-        if(!user.equals(event.getInitiator())) {
+        if (!user.equals(event.getInitiator())) {
             throw new DataConflictException("User isn't initiator");
         }
-        if(!event.isRequestModeration() || event.getParticipantLimit() == 0) {
+        if (!event.isRequestModeration() || event.getParticipantLimit() == 0) {
             throw new DataConflictException("There is no more confirms for this event");
         }
         int confirmedRequests = findConfirmedRequests(List.of(event)).size();
@@ -113,10 +113,10 @@ public class RequestService {
         switch (request.getStatus()) {
             case CONFIRMED:
                 for (ParticipationRequest r : requests) {
-                    if(r.getStatus().equals(RequestStatus.PENDING)) {
+                    if (r.getStatus().equals(RequestStatus.PENDING)) {
                         throw new DataConflictException("Status must be equals pending");
                     }
-                    if(confirmedRequests == event.getParticipantLimit()) {
+                    if (confirmedRequests == event.getParticipantLimit()) {
                         throw new DataConflictException("Reached participant limit");
                     }
                     r.setStatus(RequestStatus.CONFIRMED);
@@ -128,7 +128,7 @@ public class RequestService {
                 break;
             case REJECTED:
                 for (ParticipationRequest r : requests) {
-                    if(r.getStatus().equals(RequestStatus.PENDING)) {
+                    if (r.getStatus().equals(RequestStatus.PENDING)) {
                         throw new DataConflictException("Status must be equals pending");
                     }
                     r.setStatus(RequestStatus.REJECTED);
