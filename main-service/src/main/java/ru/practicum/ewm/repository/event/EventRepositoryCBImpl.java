@@ -12,10 +12,11 @@ import javax.persistence.criteria.Root;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class EventRepositoryCBImpl {
+public class EventRepositoryCBImpl implements EventRepositoryCB {
     @PersistenceContext
     private EntityManager entityManager;
 
+    @Override
     public List<Event> publicSearch(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
                                     LocalDateTime rangeEnd, long from, int size) {
 
@@ -35,6 +36,7 @@ public class EventRepositoryCBImpl {
         return entityManager.createQuery(query).setMaxResults(size).getResultList();
     }
 
+    @Override
     public List<Event> adminSearch(List<Long> users, List<EventState> states, List<Long> categories,
                                    LocalDateTime rangeStart, LocalDateTime rangeEnd, long from, int size) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
