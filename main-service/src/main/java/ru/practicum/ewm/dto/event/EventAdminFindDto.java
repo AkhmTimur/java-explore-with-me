@@ -11,6 +11,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class EventAdminFindDto {
     private List<Long> users;
     private List<EventState> states;
