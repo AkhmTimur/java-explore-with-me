@@ -33,14 +33,14 @@ public class RequestPrivateController {
         return new ResponseEntity<>(requestService.cancelRequest(requestId, userId), HttpStatus.OK);
     }
 
-    @GetMapping("/requests/{eventId}/cancel")
+    @GetMapping("/events/{eventId}/requests")
     public ResponseEntity<Object> getEventRequest(@PathVariable Long userId, @PathVariable Long eventId) {
         return new ResponseEntity<>(requestService.getEventRequest(eventId, userId), HttpStatus.OK);
     }
 
-    @PatchMapping("/requests/{eventId}/cancel")
-    public ResponseEntity<Object> update(@PathVariable Long userId, @PathVariable Long eventId,
-                                         @RequestBody @NotNull @Valid EventRequestStatusUpdateRequest request) {
+    @PatchMapping("/events/{eventId}/requests")
+    public ResponseEntity<Object> updateRequest(@PathVariable Long userId, @PathVariable Long eventId,
+                                                @RequestBody @NotNull @Valid EventRequestStatusUpdateRequest request) {
         return new ResponseEntity<>(requestService.update(eventId, userId, request), HttpStatus.OK);
     }
 }
