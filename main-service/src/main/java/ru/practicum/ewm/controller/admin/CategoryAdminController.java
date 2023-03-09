@@ -9,7 +9,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.dto.category.NewCategoryDto;
-import ru.practicum.ewm.model.category.Category;
 import ru.practicum.ewm.service.category.CategoryAdminService;
 
 import javax.validation.Valid;
@@ -36,7 +35,7 @@ public class CategoryAdminController {
     }
 
     @PatchMapping("/{catId}")
-    public ResponseEntity<Object> updateCategory(@RequestBody Category category, @PathVariable Long catId) {
-        return new ResponseEntity<>(categoryAdminService.adminUpdateCategory(category, catId), HttpStatus.OK);
+    public ResponseEntity<Object> updateCategory(@RequestBody @NotNull @Valid NewCategoryDto categoryDto, @PathVariable Long catId) {
+        return new ResponseEntity<>(categoryAdminService.adminUpdateCategory(categoryDto, catId), HttpStatus.OK);
     }
 }

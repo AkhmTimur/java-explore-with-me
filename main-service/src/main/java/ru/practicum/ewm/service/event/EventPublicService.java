@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.event.EventFullDto;
+import ru.practicum.ewm.dto.event.EventPublicSearchDto;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.model.event.Event;
@@ -35,7 +36,7 @@ public class EventPublicService {
     private final EventCommonService eventCommonService;
     private final RequestService requestService;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public EventFullDto getEvent(Long eventId, HttpServletRequest request) {
         Event event = entityValidator.getEventIfExist(eventId);
         if (!event.getState().equals(EventState.PUBLISHED)) {
@@ -57,10 +58,11 @@ public class EventPublicService {
         return eventFullDto;
     }
 
-    @Transactional
-    public List<EventFullDto> search(String text, List<Long> categories, Boolean paid, LocalDateTime start, LocalDateTime end,
-                                     Boolean available, Sort sort, Long from, Integer size, String ip) {
-        List<Event> events = eventRepository.publicSearch(text, categories, paid, start, end, from, size);
+
+    @Transactional(readOnly = true)
+    public List<EventFullDto> search(EventPublicSearchDto ev, String ip) {
+        List<Event> events = eventRepository.publicSearch(ev.getText(), ev.getCategories(), ev.getPaid(),
+                ev.getRangeStart(), ev.getRangeEnd(), ev.getFrom(), ev.getSize());
         if (events.isEmpty()) {
             return Collections.emptyList();
         }
@@ -79,7 +81,7 @@ public class EventPublicService {
             hitDto.setUri("/events/" + e.getId());
             statsClient.createHit(hitDto);
         });
-        if (sort != null && sort.equals(Sort.VIEWS)) {
+        if (ev.getSort() != null && ev.getSort().equals(Sort.VIEWS)) {
             return eventFullDtos.stream()
                     .sorted(Comparator.comparing(EventFullDto::getViews)).collect(Collectors.toList());
         }

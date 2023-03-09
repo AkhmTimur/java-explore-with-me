@@ -79,13 +79,13 @@ public class RequestService {
         return requestToDto(requestRepository.save(request));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ParticipationRequestDto> allUserRequests(Long userId) {
         List<ParticipationRequest> requests = requestRepository.findAllByRequesterId(userId);
         return requests.stream().map(RequestMapper::requestToDto).collect(Collectors.toList());
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ParticipationRequestDto> getEventRequest(Long eventId, Long userId) {
         Event event = entityValidator.getEventIfExist(eventId);
         User user = entityValidator.getUserIfExist(userId);

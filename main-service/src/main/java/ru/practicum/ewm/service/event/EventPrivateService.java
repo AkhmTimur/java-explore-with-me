@@ -49,7 +49,7 @@ public class EventPrivateService {
         return eventToEventFullDto(eventRepository.save(event));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<EventFullDto> getUserEvents(Long userId, long from, int size) {
         PageRequest pageRequest = PageRequest.of(0, size);
         List<Event> events = eventRepository
@@ -62,7 +62,7 @@ public class EventPrivateService {
         return eventFullDtos;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public EventFullDto getUserEvent(Long userId, Long eventId) {
         Event event = entityValidator.getEventIfExist(eventId);
         if (!Objects.equals(event.getInitiator().getId(), userId)) {

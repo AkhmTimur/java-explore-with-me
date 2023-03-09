@@ -30,7 +30,7 @@ public class CompilationPublicService {
     private final EventCommonService eventCommonService;
     private final RequestService requestService;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public CompilationDto getCompilation(Long comId) {
         Compilation compilation = entityValidator.getCompilationIfExist(comId);
         CompilationDto compilationDto = compilationToCompilationDto(compilation);
@@ -43,7 +43,7 @@ public class CompilationPublicService {
         return compilationDto;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<CompilationDto> getCompilations(long id, int size, boolean pinned) {
         PageRequest pageRequest = PageRequest.of(0, size);
         List<Compilation> compilations = compilationRepository.findAllByIdIsGreaterThanEqualAndPinnedIs(id, pinned, pageRequest);
