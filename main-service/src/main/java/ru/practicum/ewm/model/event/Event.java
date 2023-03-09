@@ -34,5 +34,4 @@ public class Event {
     private boolean requestModeration;
     private EventState state;
     private String title;
-    private Integer views;
 }
