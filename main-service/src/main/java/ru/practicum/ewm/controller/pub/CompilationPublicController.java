@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.service.compilation.CompilationPublicService;
 
 @RestController
-@RequestMapping(path = "/compilation")
+@RequestMapping(path = "/compilations")
 @Validated
 @RequiredArgsConstructor
 public class CompilationPublicController {
