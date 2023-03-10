@@ -1,4 +1,4 @@
-package ru.practicum.ewm.model.compilation;
+package ru.practicum.ewm.model.event.compilation;
 
 import lombok.*;
 import ru.practicum.ewm.model.event.Event;

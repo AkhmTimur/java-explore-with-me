@@ -33,10 +33,12 @@ public class RequestService {
     public ParticipationRequestDto addRequest(Long eventId, Long userId) {
         User user = entityValidator.getUserIfExist(userId);
         Event event = entityValidator.getEventIfExist(eventId);
+        if (event.getEventDate().isBefore(LocalDateTime.now())) {
+            throw new DataConflictException("Event date must be in the future");
+        }
         if (event.getInitiator().equals(user)) {
             throw new DataConflictException("Request couldn't be created by initiator");
         }
-
         Optional<ParticipationRequest> request = requestRepository.findByEventIdAndRequesterId(eventId, userId);
         if (request.isPresent()) {
             throw new DataConflictException("Request already exists");
@@ -60,7 +62,6 @@ public class RequestService {
         } else {
             participationRequest.setStatus(RequestStatus.PENDING);
         }
-
         return requestToDto(requestRepository.save(participationRequest));
     }
 
@@ -108,7 +109,7 @@ public class RequestService {
             throw new DataConflictException("There is no more confirms for this event");
         }
         int confirmedRequests = findConfirmedRequests(List.of(event)).size();
-        List<ParticipationRequest> requests = requestRepository.findAllByIdIn(request.getRequestId());
+        List<ParticipationRequest> requests = requestRepository.findAllByIdIn(request.getRequestIds());
         EventRequestStatusUpdateResult updateResult = new EventRequestStatusUpdateResult();
         List<ParticipationRequestDto> requestDtos;
         switch (request.getStatus()) {
@@ -129,7 +130,7 @@ public class RequestService {
                 break;
             case REJECTED:
                 for (ParticipationRequest r : requests) {
-                    if (r.getStatus().equals(RequestStatus.PENDING)) {
+                    if (!r.getStatus().equals(RequestStatus.PENDING)) {
                         throw new DataConflictException("Status must be equals pending");
                     }
                     r.setStatus(RequestStatus.REJECTED);

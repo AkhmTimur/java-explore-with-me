@@ -42,13 +42,16 @@ public class EventAdminService {
             throw new DataConflictException("Event date should be in the future");
         }
         Event updatedEvent = eventCommonService.setUpdateRequestParamToEvent(event, updateEventRequest);
-        if (updateEventRequest.getActionStatus().equals(ActionStatus.PUBLISHED_EVENT)) {
-            updatedEvent.setPublishedOn(LocalDateTime.now());
-            updatedEvent.setState(EventState.PUBLISHED);
-        } else if (updateEventRequest.getActionStatus().equals(ActionStatus.REJECTED_EVENT)) {
-            updatedEvent.setState(EventState.CANCELED);
+        Event saved = new Event();
+        if (updateEventRequest.getStateAction() != null) {
+            if (updateEventRequest.getStateAction().equals(ActionStatus.PUBLISH_EVENT)) {
+                updatedEvent.setPublishedOn(LocalDateTime.now());
+                updatedEvent.setState(EventState.PUBLISHED);
+            } else if (updateEventRequest.getStateAction().equals(ActionStatus.REJECT_EVENT)) {
+                updatedEvent.setState(EventState.CANCELED);
+            }
+            saved = eventRepository.save(updatedEvent);
         }
-        Event saved = eventRepository.save(updatedEvent);
         return eventToEventFullDto(saved);
     }
 

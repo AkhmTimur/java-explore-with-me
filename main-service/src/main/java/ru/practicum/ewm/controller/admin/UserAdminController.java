@@ -27,13 +27,11 @@ public class UserAdminController {
 
     @GetMapping
     public ResponseEntity<Object> getUsers(@RequestParam(name = "ids", defaultValue = "") List<Long> ids,
-                                           @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero Long id,
+                                           @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero int from,
                                            @RequestParam(name = "size", defaultValue = "10") @Positive int size) {
-        if (ids.size() > 0) {
-            return new ResponseEntity<>(userService.getAllUsers(id, size), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(userService.getUsers(ids), HttpStatus.OK);
-        }
+
+        return new ResponseEntity<>(userService.getUsers(ids, from, size), HttpStatus.OK);
+
     }
 
     @DeleteMapping("/{userId}")

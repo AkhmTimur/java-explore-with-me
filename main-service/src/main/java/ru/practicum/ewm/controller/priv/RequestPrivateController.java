@@ -5,10 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.dto.request.EventRequestStatusUpdateRequest;
+import ru.practicum.ewm.dto.request.EventRequestStatusUpdateResult;
 import ru.practicum.ewm.service.request.RequestService;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 
 @RestController
 @RequestMapping(path = "/users/{userId}")
@@ -38,7 +36,8 @@ public class RequestPrivateController {
 
     @PatchMapping("/events/{eventId}/requests")
     public ResponseEntity<Object> updateRequest(@PathVariable Long userId, @PathVariable Long eventId,
-                                                @RequestBody @NotNull @Valid EventRequestStatusUpdateRequest request) {
-        return new ResponseEntity<>(requestService.update(eventId, userId, request), HttpStatus.OK);
+                                                @RequestBody EventRequestStatusUpdateRequest request) {
+        EventRequestStatusUpdateResult result = requestService.update(eventId, userId, request);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }

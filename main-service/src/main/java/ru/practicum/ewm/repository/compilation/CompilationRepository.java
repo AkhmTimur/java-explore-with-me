@@ -2,7 +2,7 @@ package ru.practicum.ewm.repository.compilation;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import ru.practicum.ewm.model.compilation.Compilation;
+import ru.practicum.ewm.model.event.compilation.Compilation;
 
 import java.util.List;
 

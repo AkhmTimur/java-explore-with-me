@@ -4,15 +4,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.model.category.Category;
-import ru.practicum.ewm.model.compilation.Compilation;
 import ru.practicum.ewm.model.event.Event;
+import ru.practicum.ewm.model.event.compilation.Compilation;
 import ru.practicum.ewm.model.request.ParticipationRequest;
 import ru.practicum.ewm.model.user.User;
+import ru.practicum.ewm.repository.category.CategoryRepository;
 import ru.practicum.ewm.repository.compilation.CompilationRepository;
+import ru.practicum.ewm.repository.event.EventRepository;
 import ru.practicum.ewm.repository.request.RequestRepository;
 import ru.practicum.ewm.repository.user.UserRepository;
-import ru.practicum.ewm.repository.category.CategoryRepository;
-import ru.practicum.ewm.repository.event.EventRepository;
 
 @Service
 @RequiredArgsConstructor

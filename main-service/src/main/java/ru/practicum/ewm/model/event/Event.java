@@ -28,6 +28,8 @@ public class Event {
     private LocalDateTime eventDate;
     @ManyToOne
     private User initiator;
+    @Embedded
+    private Location location;
     private Boolean paid;
     private int participantLimit;
     private LocalDateTime publishedOn;

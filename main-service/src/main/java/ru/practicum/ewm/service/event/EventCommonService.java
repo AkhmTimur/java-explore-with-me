@@ -44,6 +44,9 @@ public class EventCommonService {
             }
             event.setEventDate(updateEventRequest.getEventDate());
         }
+        if (updateEventRequest.getLocation() != null) {
+            event.setLocation(updateEventRequest.getLocation());
+        }
         if (updateEventRequest.getPaid() != null) {
             event.setPaid(updateEventRequest.getPaid());
         }

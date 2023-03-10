@@ -87,13 +87,15 @@ public class EventPrivateService {
             throw new NotFoundException("Only initiator can update event");
         }
         Event updatedEvent = eventCommonService.setUpdateRequestParamToEvent(event, updateEventUserRequest);
-        switch (updateEventUserRequest.getActionStatus()) {
-            case SEND_TO_REVIEW:
-                updatedEvent.setState(EventState.PENDING);
-                break;
-            case CANCELED_REVIEW:
-                updatedEvent.setState(EventState.CANCELED);
-                break;
+        if (updateEventUserRequest.getStateAction() != null) {
+            switch (updateEventUserRequest.getStateAction()) {
+                case SEND_TO_REVIEW:
+                    updatedEvent.setState(EventState.PENDING);
+                    break;
+                case CANCEL_REVIEW:
+                    updatedEvent.setState(EventState.CANCELED);
+                    break;
+            }
         }
         return eventToEventFullDto(eventRepository.save(updatedEvent));
     }
