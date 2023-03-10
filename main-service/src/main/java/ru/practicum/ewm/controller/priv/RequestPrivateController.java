@@ -3,7 +3,6 @@ package ru.practicum.ewm.controller.priv;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.dto.request.EventRequestStatusUpdateRequest;
 import ru.practicum.ewm.service.request.RequestService;
@@ -13,7 +12,6 @@ import javax.validation.constraints.NotNull;
 
 @RestController
 @RequestMapping(path = "/users/{userId}")
-@Validated
 @RequiredArgsConstructor
 public class RequestPrivateController {
     private final RequestService requestService;

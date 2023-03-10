@@ -3,7 +3,6 @@ package ru.practicum.ewm.controller.priv;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.dto.event.NewEventDto;
 import ru.practicum.ewm.model.event.UpdateEventRequest;
@@ -17,7 +16,6 @@ import javax.validation.constraints.PositiveOrZero;
 @RestController
 @RequestMapping(path = "/users/{userId}/events")
 @RequiredArgsConstructor
-@Validated
 public class EventPrivateController {
     private final EventPrivateService eventPrivateService;
 
