@@ -65,7 +65,8 @@ public class RequestService {
     }
 
     public List<ParticipationRequest> findConfirmedRequests(List<Event> events) {
-        return requestRepository.findAllByEventInAndStatusIs(events, RequestStatus.CONFIRMED);
+        List<ParticipationRequest> result = requestRepository.findAllByEventIn(events);
+        return result.stream().filter(r -> !r.getStatus().equals(RequestStatus.CONFIRMED)).collect(Collectors.toList());
     }
 
     @Transactional

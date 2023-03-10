@@ -64,6 +64,11 @@ public class EventCommonService {
 
     public Map<Long, Long> getStats(List<Event> events, Boolean unique) {
         Map<Long, Long> result = new HashMap<>();
+        for (Event event : events) {
+            if (event.getPublishedOn() == null) {
+                return new HashMap<>();
+            }
+        }
         Optional<LocalDateTime> start = events.stream().map(Event::getPublishedOn).min(LocalDateTime::compareTo);
         if (start.isEmpty()) {
             return new HashMap<>();

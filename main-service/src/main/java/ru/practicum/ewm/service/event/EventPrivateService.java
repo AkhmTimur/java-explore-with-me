@@ -46,7 +46,8 @@ public class EventPrivateService {
         event.setInitiator(initiator);
         event.setState(EventState.PENDING);
         event.setCreatedOn(LocalDateTime.now());
-        return eventToEventFullDto(eventRepository.save(event));
+        Event saved = eventRepository.save(event);
+        return eventToEventFullDto(saved);
     }
 
     @Transactional(readOnly = true)

@@ -1,5 +1,6 @@
 package ru.practicum.ewm.controller.priv;
 
+import io.micrometer.core.lang.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ public class RequestPrivateController {
     private final RequestService requestService;
 
     @PostMapping("/requests")
-    public ResponseEntity<Object> addRequest(@PathVariable Long userId, @RequestParam Long eventId) {
+    public ResponseEntity<Object> addRequest(@PathVariable @Nullable Long userId, @RequestParam Long eventId) {
         return new ResponseEntity<>(requestService.addRequest(eventId, userId), HttpStatus.CREATED);
     }
 
