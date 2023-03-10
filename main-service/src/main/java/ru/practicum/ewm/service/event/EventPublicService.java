@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.event.EventFullDto;
 import ru.practicum.ewm.dto.event.EventPublicSearchDto;
+import ru.practicum.ewm.exception.BadRequestException;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.model.event.Event;
@@ -61,6 +62,9 @@ public class EventPublicService {
 
     @Transactional(readOnly = true)
     public List<EventFullDto> search(EventPublicSearchDto ev, String ip) {
+        if (ev == null) {
+            throw new BadRequestException("There is no search criteria");
+        }
         List<Event> events = eventRepository.publicSearch(ev.getText(), ev.getCategories(), ev.getPaid(),
                 ev.getRangeStart(), ev.getRangeEnd(), ev.getFrom(), ev.getSize());
         if (events.isEmpty()) {

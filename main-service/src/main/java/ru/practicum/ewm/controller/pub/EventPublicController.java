@@ -26,7 +26,7 @@ public class EventPublicController {
     }
 
     @GetMapping
-    public ResponseEntity<Object> search(@RequestParam EventPublicSearchDto eventPublicSearchDto, HttpServletRequest request) {
+    public ResponseEntity<Object> search(@RequestParam(required = false) EventPublicSearchDto eventPublicSearchDto, HttpServletRequest request) {
         List<EventFullDto> eventFullDtos =
                 eventPublicService.search(eventPublicSearchDto, request.getRemoteAddr());
         return new ResponseEntity<>(eventFullDtos, HttpStatus.OK);
