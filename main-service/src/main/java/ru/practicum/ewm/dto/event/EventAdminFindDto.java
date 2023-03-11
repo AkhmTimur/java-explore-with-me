@@ -4,6 +4,7 @@ import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.ewm.util.EventState;
 
+import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,6 +28,7 @@ public class EventAdminFindDto {
     @PositiveOrZero
     @Builder.Default
     private int from = 0;
+    @Positive
     @Builder.Default
     private int size = 10;
 }

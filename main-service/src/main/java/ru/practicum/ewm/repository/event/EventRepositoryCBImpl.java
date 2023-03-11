@@ -48,10 +48,10 @@ public class EventRepositoryCBImpl implements EventRepositoryCB {
             Predicate initiators = event.get("initiator").in(users);
             predicate = cb.and(predicate, initiators);
         }
-//        if (states != null) {
-//            Predicate inStates = event.get("state").in(states);
-//            predicate = cb.and(predicate, inStates);
-//        }
+        if (states != null) {
+            Predicate inStates = event.get("state").in(states);
+            predicate = cb.and(predicate, inStates);
+        }
         if (categories != null) {
             Predicate category = event.get("category").in(categories);
             predicate = cb.and(predicate, category);

@@ -1,12 +1,10 @@
 package ru.practicum.ewm.dto.event;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import ru.practicum.ewm.util.Sort;
 
+import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,7 +15,8 @@ import static ru.practicum.ewm.util.DateTimePattern.DATE_TIME_PATTERN;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class EventPublicSearchDto {
+@Builder
+public class EventPublicSearch {
     private String text;
     private List<Long> categories;
     private Boolean paid;
@@ -28,6 +27,9 @@ public class EventPublicSearchDto {
     private Boolean onlyAvailable;
     private Sort sort;
     @PositiveOrZero
-    private Long from;
-    private Integer size;
+    @Builder.Default
+    private int from = 0;
+    @Positive
+    @Builder.Default
+    private int size = 1000;
 }

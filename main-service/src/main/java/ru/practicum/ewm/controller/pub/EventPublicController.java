@@ -1,17 +1,23 @@
 package ru.practicum.ewm.controller.pub;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.dto.event.EventFullDto;
-import ru.practicum.ewm.dto.event.EventPublicSearchDto;
+import ru.practicum.ewm.dto.event.EventPublicSearch;
 import ru.practicum.ewm.service.event.EventPublicService;
+import ru.practicum.ewm.util.Sort;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
+import java.time.LocalDateTime;
 import java.util.List;
+
+import static ru.practicum.ewm.util.DateTimePattern.DATE_TIME_PATTERN;
 
 @RestController
 @RequestMapping(path = "/events")
@@ -26,9 +32,31 @@ public class EventPublicController {
     }
 
     @GetMapping
-    public ResponseEntity<Object> search(@RequestParam(required = false) EventPublicSearchDto eventPublicSearchDto, HttpServletRequest request) {
+    public ResponseEntity<Object> search(@RequestParam(required = false) String text,
+                                         @RequestParam(required = false) List<Long> categories,
+                                         @RequestParam(required = false) Boolean paid,
+                                         @RequestParam(required = false)
+                                         @DateTimeFormat(pattern = DATE_TIME_PATTERN) LocalDateTime rangeStart,
+                                         @RequestParam(required = false)
+                                         @DateTimeFormat(pattern = DATE_TIME_PATTERN) LocalDateTime rangeEnd,
+                                         @RequestParam(required = false) Boolean onlyAvailable,
+                                         @RequestParam(required = false) Sort sort,
+                                         @RequestParam(required = false) @PositiveOrZero int from,
+                                         @RequestParam(required = false) int size,
+                                         HttpServletRequest request) {
+        EventPublicSearch eventPublicSearch = EventPublicSearch.builder()
+                .text(text)
+                .categories(categories)
+                .paid(paid)
+                .rangeStart(rangeStart)
+                .rangeEnd(rangeEnd)
+                .onlyAvailable(onlyAvailable)
+                .sort(sort)
+                .from(from)
+                .size(size)
+                .build();
         List<EventFullDto> eventFullDtos =
-                eventPublicService.search(eventPublicSearchDto, request.getRemoteAddr());
+                eventPublicService.search(eventPublicSearch, request.getRemoteAddr());
         return new ResponseEntity<>(eventFullDtos, HttpStatus.OK);
     }
 }
