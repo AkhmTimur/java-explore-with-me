@@ -38,14 +38,14 @@ public class EventAdminService {
         if (!event.getState().equals(EventState.PENDING)) {
             throw new DataConflictException("Wrong event state: " + event.getState());
         }
-        if (event.getEventDate().isBefore(LocalDateTime.now().plusSeconds(1))) {
+        if (event.getEventDate().isBefore(LocalDateTime.now().withNano(0))) {
             throw new DataConflictException("Event date should be in the future");
         }
         Event updatedEvent = eventCommonService.setUpdateRequestParamToEvent(event, updateEventRequest);
         Event saved = new Event();
         if (updateEventRequest.getStateAction() != null) {
             if (updateEventRequest.getStateAction().equals(ActionStatus.PUBLISH_EVENT)) {
-                updatedEvent.setPublishedOn(LocalDateTime.now());
+                updatedEvent.setPublishedOn(LocalDateTime.now().withNano(0));
                 updatedEvent.setState(EventState.PUBLISHED);
             } else if (updateEventRequest.getStateAction().equals(ActionStatus.REJECT_EVENT)) {
                 updatedEvent.setState(EventState.CANCELED);

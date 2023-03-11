@@ -36,7 +36,7 @@ public class EventPrivateService {
 
     @Transactional
     public EventFullDto addEvent(Long userId, NewEventDto newEventDto) {
-        if (newEventDto.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
+        if (newEventDto.getEventDate().isBefore(LocalDateTime.now().withNano(0))) {
             throw new DataConflictException("Event date should be in the future");
         }
         Category category = entityValidator.getCategoryIfExist(newEventDto.getCategory());
@@ -45,7 +45,7 @@ public class EventPrivateService {
         User initiator = entityValidator.getUserIfExist(userId);
         event.setInitiator(initiator);
         event.setState(EventState.PENDING);
-        event.setCreatedOn(LocalDateTime.now());
+        event.setCreatedOn(LocalDateTime.now().withNano(0));
         Event saved = eventRepository.save(event);
         return eventToEventFullDto(saved);
     }

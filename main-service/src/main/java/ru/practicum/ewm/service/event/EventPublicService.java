@@ -52,7 +52,7 @@ public class EventPublicService {
                 .app("APP_NAME")
                 .uri(uri)
                 .ip(ip)
-                .timestamp(LocalDateTime.now())
+                .timestamp(LocalDateTime.now().withNano(0))
                 .build();
         statsClient.createHit(hitDto);
         return eventFullDto;
@@ -78,7 +78,7 @@ public class EventPublicService {
             eventFullDto.setConfirmedRequests((int) confirmedRequests.stream()
                     .filter(r -> r.getEvent().getId().equals(eventFullDto.getId())).count());
         }
-        HitDto hitDto = HitDto.builder().app("APP_NAME").uri("/events").ip(ip).timestamp(LocalDateTime.now()).build();
+        HitDto hitDto = HitDto.builder().app("APP_NAME").uri("/events").ip(ip).timestamp(LocalDateTime.now().withNano(0)).build();
         statsClient.createHit(hitDto);
         events.forEach(e -> {
             hitDto.setUri("/events/" + e.getId());

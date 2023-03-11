@@ -38,23 +38,23 @@ public class EventRepositoryCBImpl implements EventRepositoryCB {
 
     @Override
     public List<Event> adminSearch(List<Long> users, List<EventState> states, List<Long> categories,
-                                   LocalDateTime rangeStart, LocalDateTime rangeEnd, long from, int size) {
+                                   LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Event> query = cb.createQuery(Event.class);
         Root<Event> event = query.from(Event.class);
         Predicate predicate = cb.conjunction();
 
         if (users != null) {
-            Predicate inUsers = event.get("initiator").in(users);
-            predicate = cb.and(predicate, inUsers);
+            Predicate initiators = event.get("initiator").in(users);
+            predicate = cb.and(predicate, initiators);
         }
-        if (states != null) {
-            Predicate inStates = event.get("state").in(states);
-            predicate = cb.and(predicate, inStates);
-        }
+//        if (states != null) {
+//            Predicate inStates = event.get("state").in(states);
+//            predicate = cb.and(predicate, inStates);
+//        }
         if (categories != null) {
-            Predicate inCategories = event.get("category").in(categories);
-            predicate = cb.and(predicate, inCategories);
+            Predicate category = event.get("category").in(categories);
+            predicate = cb.and(predicate, category);
         }
         if (rangeStart != null) {
             Predicate start = cb.greaterThan(event.get("eventDate"), rangeStart);

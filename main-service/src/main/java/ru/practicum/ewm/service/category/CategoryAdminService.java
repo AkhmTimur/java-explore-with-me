@@ -53,7 +53,7 @@ public class CategoryAdminService {
         Category category = categoryRepository.findById(catId)
                 .orElseThrow(() -> new NotFoundException("Category " + categoryDto + " not found"));
         Optional<Category> categoryByName = categoryRepository.findByName(category.getName());
-        if (categoryByName.isPresent() && category.getId().equals(categoryByName.get().getId())) {
+        if (categoryByName.isPresent() && !category.getId().equals(categoryByName.get().getId())) {
             throw new DataConflictException("Category with this name already exists");
         }
         category.setName(categoryDto.getName());

@@ -39,7 +39,7 @@ public class EventCommonService {
             event.setDescription(updateEventRequest.getDescription());
         }
         if (updateEventRequest.getEventDate() != null) {
-            if (updateEventRequest.getEventDate().isBefore(LocalDateTime.now().plusSeconds(2))) {
+            if (updateEventRequest.getEventDate().isBefore(LocalDateTime.now().withNano(0))) {
                 throw new DataConflictException("Event date should be in the future");
             }
             event.setEventDate(updateEventRequest.getEventDate());
@@ -79,7 +79,7 @@ public class EventCommonService {
         List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
         List<String> uris = eventIds.stream().map(id -> "/events/" + id).collect(Collectors.toList());
 
-        ResponseEntity<Object> response = statsClient.getStats(new HitInDto(start.get(), LocalDateTime.now(), uris, unique));
+        ResponseEntity<Object> response = statsClient.getStats(new HitInDto(start.get(), LocalDateTime.now().withNano(0), uris, unique));
         List<HitCountDto> stats;
         ObjectMapper mapper = new ObjectMapper();
         try {
