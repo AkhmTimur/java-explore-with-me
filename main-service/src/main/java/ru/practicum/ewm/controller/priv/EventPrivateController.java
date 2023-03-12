@@ -42,6 +42,4 @@ public class EventPrivateController {
                                                 @RequestParam(name = "size", defaultValue = "10") @Positive int size) {
         return new ResponseEntity<>(eventPrivateService.getUserEvents(userId, from, size), HttpStatus.OK);
     }
-
-    
 }
