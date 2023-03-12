@@ -8,6 +8,7 @@ import ru.practicum.ewm.dto.event.NewEventDto;
 import ru.practicum.ewm.model.event.UpdateEventRequest;
 import ru.practicum.ewm.service.event.EventPrivateService;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
@@ -19,7 +20,7 @@ public class EventPrivateController {
 
     @PostMapping
     public ResponseEntity<Object> addEvent(@PathVariable Long userId,
-                                           @RequestBody NewEventDto newEventDto) {
+                                           @RequestBody @Valid NewEventDto newEventDto) {
         return new ResponseEntity<>(eventPrivateService.addEvent(userId, newEventDto), HttpStatus.CREATED);
     }
 
@@ -31,7 +32,7 @@ public class EventPrivateController {
     @PatchMapping("/{eventId}")
     public ResponseEntity<Object> updateEvent(@PathVariable Long userId,
                                               @PathVariable Long eventId,
-                                              @RequestBody UpdateEventRequest updateEventRequest) {
+                                              @RequestBody @Valid UpdateEventRequest updateEventRequest) {
         return new ResponseEntity<>(eventPrivateService.updateEvent(userId, eventId, updateEventRequest), HttpStatus.OK);
     }
 
@@ -41,4 +42,6 @@ public class EventPrivateController {
                                                 @RequestParam(name = "size", defaultValue = "10") @Positive int size) {
         return new ResponseEntity<>(eventPrivateService.getUserEvents(userId, from, size), HttpStatus.OK);
     }
+
+    
 }

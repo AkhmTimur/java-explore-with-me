@@ -3,7 +3,6 @@ package ru.practicum.ewm.model.event;
 import lombok.*;
 import ru.practicum.ewm.model.category.Category;
 import ru.practicum.ewm.model.user.User;
-import ru.practicum.ewm.util.EventState;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -35,8 +34,7 @@ public class Event {
     private int participantLimit;
     private LocalDateTime publishedOn;
     private boolean requestModeration;
-    @Enumerated(EnumType.STRING)
-    private EventState state;
+    private String state;
     private String title;
 
     @Override

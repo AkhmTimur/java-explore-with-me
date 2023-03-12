@@ -1,7 +1,6 @@
 package ru.practicum.ewm.repository.event;
 
 import ru.practicum.ewm.model.event.Event;
-import ru.practicum.ewm.util.EventState;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -37,7 +36,7 @@ public class EventRepositoryCBImpl implements EventRepositoryCB {
     }
 
     @Override
-    public List<Event> adminSearch(List<Long> users, List<EventState> states, List<Long> categories,
+    public List<Event> adminSearch(List<Long> users, List<String> states, List<Long> categories,
                                    LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Event> query = cb.createQuery(Event.class);

@@ -45,7 +45,7 @@ public class EventPrivateService {
         event.setCategory(category);
         User initiator = entityValidator.getUserIfExist(userId);
         event.setInitiator(initiator);
-        event.setState(EventState.PENDING);
+        event.setState(EventState.PENDING.toString());
         event.setCreatedOn(LocalDateTime.now().withNano(0));
         Event saved = eventRepository.save(event);
         return eventToEventFullDto(saved);
@@ -71,7 +71,7 @@ public class EventPrivateService {
             throw new NotFoundException("Initiator and user have different ids");
         }
         EventFullDto eventFullDto = eventToEventFullDto(event);
-        if (eventFullDto.getState().equals(EventState.PUBLISHED)) {
+        if (eventFullDto.getState().equals(EventState.PUBLISHED.toString())) {
             Map<Long, Long> views = eventCommonService.getStats(List.of(event), false);
             eventFullDto.setViews(views.get(event.getId()));
             List<ParticipationRequest> confirmedRequests = requestService
@@ -85,19 +85,23 @@ public class EventPrivateService {
     public EventFullDto updateEvent(Long userId, Long eventId, UpdateEventRequest updateEventUserRequest) {
         Event event = entityValidator.getEventIfExist(eventId);
         if (!Objects.equals(event.getInitiator().getId(), userId)) {
-            throw new NotFoundException("Only initiator can update event");
+            throw new DataConflictException("Only initiator can update event");
+        }
+        if (event.getState().equals(EventState.PUBLISHED.toString())) {
+            throw new DataConflictException("Published event can't be updated");
         }
         Event updatedEvent = eventCommonService.setUpdateRequestParamToEvent(event, updateEventUserRequest);
         if (updateEventUserRequest.getStateAction() != null) {
             switch (updateEventUserRequest.getStateAction()) {
                 case SEND_TO_REVIEW:
-                    updatedEvent.setState(EventState.PENDING);
+                    updatedEvent.setState(EventState.PENDING.toString());
                     break;
                 case CANCEL_REVIEW:
-                    updatedEvent.setState(EventState.CANCELED);
+                    updatedEvent.setState(EventState.CANCELED.toString());
                     break;
             }
         }
         return eventToEventFullDto(eventRepository.save(updatedEvent));
     }
 }
+

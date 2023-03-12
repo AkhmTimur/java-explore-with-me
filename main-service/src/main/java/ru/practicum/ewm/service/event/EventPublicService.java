@@ -39,7 +39,7 @@ public class EventPublicService {
     @Transactional(readOnly = true)
     public EventFullDto getEvent(Long eventId, HttpServletRequest request) {
         Event event = entityValidator.getEventIfExist(eventId);
-        if (!event.getState().equals(EventState.PUBLISHED)) {
+        if (!event.getState().equals(EventState.PUBLISHED.toString())) {
             throw new NotFoundException(event + " not found");
         }
         EventFullDto eventFullDto = eventToEventFullDto(event);

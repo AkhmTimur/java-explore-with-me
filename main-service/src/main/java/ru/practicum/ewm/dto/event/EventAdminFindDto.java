@@ -2,7 +2,6 @@ package ru.practicum.ewm.dto.event;
 
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
-import ru.practicum.ewm.util.EventState;
 
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
@@ -19,7 +18,7 @@ import static ru.practicum.ewm.util.DateTimePattern.DATE_TIME_PATTERN;
 @Builder
 public class EventAdminFindDto {
     private List<Long> users;
-    private List<EventState> states;
+    private List<String> states;
     private List<Long> categories;
     @DateTimeFormat(pattern = DATE_TIME_PATTERN)
     private LocalDateTime rangeStart;

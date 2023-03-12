@@ -35,7 +35,7 @@ public class EventAdminService {
     @Transactional
     public EventFullDto adminUpdateEvent(Long eventId, UpdateEventRequest updateEventRequest) {
         Event event = entityValidator.getEventIfExist(eventId);
-        if (!event.getState().equals(EventState.PENDING)) {
+        if (!event.getState().equals(EventState.PENDING.toString())) {
             throw new DataConflictException("Wrong event state: " + event.getState());
         }
         if (event.getEventDate().isBefore(LocalDateTime.now().withNano(0))) {
@@ -46,9 +46,9 @@ public class EventAdminService {
         if (updateEventRequest.getStateAction() != null) {
             if (updateEventRequest.getStateAction().equals(ActionStatus.PUBLISH_EVENT)) {
                 updatedEvent.setPublishedOn(LocalDateTime.now().withNano(0));
-                updatedEvent.setState(EventState.PUBLISHED);
+                updatedEvent.setState(EventState.PUBLISHED.toString());
             } else if (updateEventRequest.getStateAction().equals(ActionStatus.REJECT_EVENT)) {
-                updatedEvent.setState(EventState.CANCELED);
+                updatedEvent.setState(EventState.CANCELED.toString());
             }
             saved = eventRepository.save(updatedEvent);
         }

@@ -43,7 +43,7 @@ public class RequestService {
         if (request.isPresent()) {
             throw new DataConflictException("Request already exists");
         }
-        if (!event.getState().equals((EventState.PUBLISHED))) {
+        if (!event.getState().equals((EventState.PUBLISHED.toString()))) {
             throw new DataConflictException("Couldn't created request for not published event");
         }
         List<ParticipationRequest> requests = findConfirmedRequests(List.of(event));

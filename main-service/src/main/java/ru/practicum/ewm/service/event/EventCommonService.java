@@ -56,7 +56,7 @@ public class EventCommonService {
         if (updateEventRequest.getRequestModeration() != null) {
             event.setRequestModeration(updateEventRequest.getRequestModeration());
         }
-        if (event.getState().equals(EventState.PUBLISHED)) {
+        if (event.getState().equals(EventState.PUBLISHED.toString())) {
             throw new DataConflictException("Event with state: " + event.getState() + " cannot be changed");
         }
         if (updateEventRequest.getTitle() != null) {
