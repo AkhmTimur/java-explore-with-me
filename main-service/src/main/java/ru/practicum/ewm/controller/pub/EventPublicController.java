@@ -13,7 +13,6 @@ import ru.practicum.ewm.util.Sort;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -41,8 +40,8 @@ public class EventPublicController {
                                          @DateTimeFormat(pattern = DATE_TIME_PATTERN) LocalDateTime rangeEnd,
                                          @RequestParam(required = false) Boolean onlyAvailable,
                                          @RequestParam(required = false) Sort sort,
-                                         @RequestParam(required = false) @PositiveOrZero int from,
-                                         @RequestParam(required = false) int size,
+                                         @RequestParam(defaultValue = "0") int from,
+                                         @RequestParam(defaultValue = "10") int size,
                                          HttpServletRequest request) {
         EventPublicSearch eventPublicSearch = EventPublicSearch.builder()
                 .text(text)

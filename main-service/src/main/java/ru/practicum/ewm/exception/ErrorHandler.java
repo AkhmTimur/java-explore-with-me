@@ -16,20 +16,20 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> handleDataNotFound(final NotFoundException e) {
         log.warn("Данные не найдены" + e.getMessage());
-        return Map.of("Данные не найдены", e.getMessage());
+        return Map.of("Not found", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleValidationException(final BadRequestException e) {
-        log.warn("Запрос не поддерживается" + e.getMessage());
+        log.warn("Bad request" + e.getMessage());
         return Map.of("error", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public Map<String, String> handleUserAlreadyExistException(final DataConflictException e) {
-        log.warn("Пользователь уже создан" + e.getMessage());
+        log.warn("Data conflict" + e.getMessage());
         return Map.of("Запрос не поддерживается", e.getMessage());
     }
 }

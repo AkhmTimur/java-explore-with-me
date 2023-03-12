@@ -25,7 +25,7 @@ public class EventRepositoryCBImpl implements EventRepositoryCB {
         Root<Event> event = query.from(Event.class);
         Predicate predicate = cb.conjunction();
 
-        if (!text.isEmpty()) {
+        if (text != null && !text.isEmpty()) {
             Predicate annotation = cb.like(cb.lower(event.get("annotation")), "%" + text.toLowerCase() + "%");
             Predicate description = cb.like(cb.lower(event.get("description")), "%" + text.toLowerCase() + "%");
             Predicate hasText = cb.or(description, annotation);

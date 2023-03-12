@@ -36,8 +36,9 @@ public class EventPrivateService {
 
     @Transactional
     public EventFullDto addEvent(Long userId, NewEventDto newEventDto) {
-        if (newEventDto.getEventDate().isBefore(LocalDateTime.now().withNano(0))) {
-            throw new DataConflictException("Event date should be in the future");
+        LocalDateTime plus2 = LocalDateTime.now().withNano(0).plusHours(2);
+        if (newEventDto.getEventDate().isBefore(plus2)) {
+            throw new DataConflictException("Event date should be in the future more then 2 hours");
         }
         Category category = entityValidator.getCategoryIfExist(newEventDto.getCategory());
         Event event = newEventDtoToEvent(newEventDto, category);
