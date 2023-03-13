@@ -9,6 +9,7 @@ import ru.practicum.ewm.model.event.UpdateEventRequest;
 import ru.practicum.ewm.service.event.EventPrivateService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
@@ -31,7 +32,7 @@ public class EventPrivateController {
 
     @PatchMapping("/{eventId}")
     public ResponseEntity<Object> updateEvent(@PathVariable Long userId,
-                                              @PathVariable Long eventId,
+                                              @PathVariable @NotNull Long eventId,
                                               @RequestBody @Valid UpdateEventRequest updateEventRequest) {
         return new ResponseEntity<>(eventPrivateService.updateEvent(userId, eventId, updateEventRequest), HttpStatus.OK);
     }
