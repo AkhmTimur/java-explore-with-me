@@ -1,9 +1,9 @@
 package ru.practicum.ewm.mapper;
 
 import ru.practicum.ewm.dto.user.NewUserRequest;
+import ru.practicum.ewm.dto.user.UserDto;
 import ru.practicum.ewm.dto.user.UserShortDto;
 import ru.practicum.ewm.model.user.User;
-import ru.practicum.ewm.dto.user.UserDto;
 
 public class UserMapper {
 
@@ -16,6 +16,7 @@ public class UserMapper {
 
     public static UserDto userToDto(User user) {
         return UserDto.builder()
+                .id(user.getId())
                 .email(user.getEmail())
                 .name(user.getName())
                 .build();

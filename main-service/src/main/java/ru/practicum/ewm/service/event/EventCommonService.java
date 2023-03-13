@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.ewm.dto.event.EventFullDto;
 import ru.practicum.ewm.exception.DataConflictException;
 import ru.practicum.ewm.mapper.EventMapper;
+import ru.practicum.ewm.mapper.LocationMapper;
 import ru.practicum.ewm.model.category.Category;
 import ru.practicum.ewm.model.event.Event;
 import ru.practicum.ewm.model.event.UpdateEventRequest;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 public class EventCommonService {
     private final StatsClient statsClient;
     private final EntityValidator entityValidator;
+    private final LocationMapper locationMapper;
 
     public Event setUpdateRequestParamToEvent(Event event, UpdateEventRequest updateEventRequest) {
         if (updateEventRequest.getAnnotation() != null) {
@@ -45,7 +47,7 @@ public class EventCommonService {
             event.setEventDate(updateEventRequest.getEventDate());
         }
         if (updateEventRequest.getLocation() != null) {
-            event.setLocation(updateEventRequest.getLocation());
+            event.setLocation(locationMapper.dtoToLocation(updateEventRequest.getLocation()));
         }
         if (updateEventRequest.getPaid() != null) {
             event.setPaid(updateEventRequest.getPaid());

@@ -20,7 +20,7 @@ public class EventPrivateController {
     private final EventPrivateService eventPrivateService;
 
     @PostMapping
-    public ResponseEntity<Object> addEvent(@PathVariable Long userId,
+    public ResponseEntity<Object> addEvent(@PathVariable @NotNull Long userId,
                                            @RequestBody @Valid NewEventDto newEventDto) {
         return new ResponseEntity<>(eventPrivateService.addEvent(userId, newEventDto), HttpStatus.CREATED);
     }
@@ -32,7 +32,7 @@ public class EventPrivateController {
 
     @PatchMapping("/{eventId}")
     public ResponseEntity<Object> updateEvent(@PathVariable Long userId,
-                                              @PathVariable @NotNull Long eventId,
+                                              @PathVariable Long eventId,
                                               @RequestBody @Valid UpdateEventRequest updateEventRequest) {
         return new ResponseEntity<>(eventPrivateService.updateEvent(userId, eventId, updateEventRequest), HttpStatus.OK);
     }
