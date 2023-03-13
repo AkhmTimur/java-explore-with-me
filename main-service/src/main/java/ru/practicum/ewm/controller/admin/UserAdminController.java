@@ -29,7 +29,6 @@ public class UserAdminController {
     public ResponseEntity<Object> getUsers(@RequestParam(name = "ids", defaultValue = "") List<Long> ids,
                                            @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero int from,
                                            @RequestParam(name = "size", defaultValue = "10") @Positive int size) {
-
         return new ResponseEntity<>(userService.getUsers(ids, from, size), HttpStatus.OK);
 
     }

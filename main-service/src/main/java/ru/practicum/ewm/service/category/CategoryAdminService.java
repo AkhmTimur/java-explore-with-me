@@ -27,6 +27,7 @@ public class CategoryAdminService {
 
     @Transactional
     public CategoryDto adminCreateCategory(NewCategoryDto categoryDto) {
+        categoryDto.setName(categoryDto.getName().trim());
         Optional<Category> categoryByName = categoryRepository.findByName(categoryDto.getName());
         if (categoryByName.isPresent()) {
             throw new DataConflictException("Category with this name already exists");
