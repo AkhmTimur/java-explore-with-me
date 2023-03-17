@@ -6,11 +6,13 @@ import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.model.category.Category;
 import ru.practicum.ewm.model.event.Event;
 import ru.practicum.ewm.model.event.compilation.Compilation;
+import ru.practicum.ewm.model.eventLike.Like;
 import ru.practicum.ewm.model.request.ParticipationRequest;
 import ru.practicum.ewm.model.user.User;
 import ru.practicum.ewm.repository.category.CategoryRepository;
 import ru.practicum.ewm.repository.compilation.CompilationRepository;
 import ru.practicum.ewm.repository.event.EventRepository;
+import ru.practicum.ewm.repository.like.LikeRepository;
 import ru.practicum.ewm.repository.request.RequestRepository;
 import ru.practicum.ewm.repository.user.UserRepository;
 
@@ -22,6 +24,7 @@ public class EntityValidator {
     private final UserRepository userRepository;
     private final CompilationRepository compilationRepository;
     private final RequestRepository requestRepository;
+    private final LikeRepository likeRepository;
 
     public Category getCategoryIfExist(Long catId) {
         return categoryRepository.findById(catId)
@@ -46,5 +49,9 @@ public class EntityValidator {
     public ParticipationRequest getRequestIfExist(Long reqId) {
         return requestRepository.findById(reqId)
                 .orElseThrow(() -> new NotFoundException(ParticipationRequest.class.getSimpleName() + " not found"));
+    }
+
+    public Like getLikeIfExist(Event event, User user) {
+        return likeRepository.findByEventIsAndUserIs(event, user);
     }
 }

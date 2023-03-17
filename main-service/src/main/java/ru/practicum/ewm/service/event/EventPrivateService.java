@@ -11,9 +11,12 @@ import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.model.category.Category;
 import ru.practicum.ewm.model.event.Event;
 import ru.practicum.ewm.model.event.UpdateEventRequest;
+import ru.practicum.ewm.model.eventLike.Like;
+import ru.practicum.ewm.model.eventLike.LikesCount;
 import ru.practicum.ewm.model.request.ParticipationRequest;
 import ru.practicum.ewm.model.user.User;
 import ru.practicum.ewm.repository.event.EventRepository;
+import ru.practicum.ewm.repository.like.LikeRepository;
 import ru.practicum.ewm.service.request.RequestService;
 import ru.practicum.ewm.util.EventState;
 import ru.practicum.ewm.validator.EntityValidator;
@@ -33,6 +36,7 @@ public class EventPrivateService {
     private final EntityValidator entityValidator;
     private final EventCommonService eventCommonService;
     private final RequestService requestService;
+    private final LikeRepository likeRepository;
 
     @Transactional
     public EventFullDto addEvent(Long userId, NewEventDto newEventDto) {
@@ -102,6 +106,29 @@ public class EventPrivateService {
             }
         }
         return eventToEventFullDto(eventRepository.save(updatedEvent));
+    }
+
+    @Transactional
+    public void addLikeToEvent(Long userId, Long eventId) {
+        Event event = entityValidator.getEventIfExist(eventId);
+        User user = entityValidator.getUserIfExist(userId);
+        Like like = new Like(event, user, LocalDateTime.now().withNano(0));
+        likeRepository.save(like);
+    }
+
+    @Transactional
+    public void dislikeToEvent(Long userId, Long eventId) {
+        Event event = entityValidator.getEventIfExist(eventId);
+        User user = entityValidator.getUserIfExist(userId);
+        Like like = entityValidator.getLikeIfExist(event, user);
+        likeRepository.deleteById(like.getLikeId());
+    }
+
+    public List<EventFullDto> getMostLikedEventsCreatedByUser(Long userId, Integer from, Integer size) {
+        entityValidator.getUserIfExist(userId);
+        PageRequest pageRequest = PageRequest.of(from, size);
+        List<LikesCount> likesCounts = likeRepository.getMostLikedEventsCreatedByUser(userId, pageRequest);
+        return eventCommonService.getMostLikedCommon(likesCounts);
     }
 }
 

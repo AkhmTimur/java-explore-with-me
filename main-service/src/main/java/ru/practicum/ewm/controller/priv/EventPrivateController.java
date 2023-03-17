@@ -43,4 +43,25 @@ public class EventPrivateController {
                                                 @RequestParam(name = "size", defaultValue = "10") @Positive int size) {
         return new ResponseEntity<>(eventPrivateService.getUserEvents(userId, from, size), HttpStatus.OK);
     }
+
+    @PostMapping("/{eventId}/like")
+    public ResponseEntity<Object> addLikeToEvent(@PathVariable @NotNull Long userId,
+                                                 @PathVariable @NotNull Long eventId) {
+        eventPrivateService.addLikeToEvent(userId, eventId);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/{eventId}/like")
+    public ResponseEntity<Object> dislikeToEvent(@PathVariable @NotNull Long userId,
+                                                 @PathVariable @NotNull Long eventId) {
+        eventPrivateService.dislikeToEvent(userId, eventId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/mostLikedCreatedByMe")
+    public ResponseEntity<Object> getMostLikedEventsCreatedByUser(@PathVariable @NotNull Long userId,
+                                                                  @RequestParam(defaultValue = "0") int from,
+                                                                  @RequestParam(defaultValue = "10") int size) {
+        return new ResponseEntity<>(eventPrivateService.getMostLikedEventsCreatedByUser(userId, from, size), HttpStatus.OK);
+    }
 }

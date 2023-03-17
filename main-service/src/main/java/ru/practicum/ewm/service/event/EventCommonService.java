@@ -10,6 +10,8 @@ import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.model.category.Category;
 import ru.practicum.ewm.model.event.Event;
 import ru.practicum.ewm.model.event.UpdateEventRequest;
+import ru.practicum.ewm.model.eventLike.LikesCount;
+import ru.practicum.ewm.repository.event.EventRepository;
 import ru.practicum.ewm.stats.dto.HitCountDto;
 import ru.practicum.ewm.stats.dto.HitInDto;
 import ru.practicum.ewm.stats.stats.StatsClient;
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
 public class EventCommonService {
     private final StatsClient statsClient;
     private final EntityValidator entityValidator;
+    private final EventRepository eventRepository;
 
     public Event setUpdateRequestParamToEvent(Event event, UpdateEventRequest updateEventRequest) {
         if (updateEventRequest.getAnnotation() != null) {
@@ -110,5 +113,19 @@ public class EventCommonService {
             eventFullDtos.forEach(e -> e.setViews(views.get(e.getId())));
         }
         return eventFullDtos;
+    }
+
+    public List<EventFullDto> getMostLikedCommon(List<LikesCount> eventLikes) {
+        List<Long> eventIds = eventLikes.stream().map(LikesCount::getEventId).collect(Collectors.toList());
+        List<Event> allEvents = eventRepository.findAllById(eventIds);
+        List<EventFullDto> fullDtos = allEvents.stream().map(EventMapper::eventToEventFullDto).collect(Collectors.toList());
+        for (EventFullDto event : fullDtos) {
+            for (LikesCount eventLike : eventLikes) {
+                if (eventLike.getEventId().equals(event.getId())) {
+                    event.setLikesCount(eventLike.getLikesCount());
+                }
+            }
+        }
+        return fullDtos;
     }
 }

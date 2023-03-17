@@ -1,6 +1,7 @@
 package ru.practicum.ewm.service.event;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.event.EventFullDto;
@@ -8,8 +9,10 @@ import ru.practicum.ewm.dto.event.EventPublicSearch;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.model.event.Event;
+import ru.practicum.ewm.model.eventLike.LikesCount;
 import ru.practicum.ewm.model.request.ParticipationRequest;
 import ru.practicum.ewm.repository.event.EventRepository;
+import ru.practicum.ewm.repository.like.LikeRepository;
 import ru.practicum.ewm.service.request.RequestService;
 import ru.practicum.ewm.stats.dto.HitDto;
 import ru.practicum.ewm.stats.stats.StatsClient;
@@ -35,6 +38,7 @@ public class EventPublicService {
     private final EntityValidator entityValidator;
     private final EventCommonService eventCommonService;
     private final RequestService requestService;
+    private final LikeRepository likeRepository;
 
     @Transactional(readOnly = true)
     public EventFullDto getEvent(Long eventId, HttpServletRequest request) {
@@ -90,5 +94,17 @@ public class EventPublicService {
         }
         return eventFullDtos.stream()
                 .sorted(Comparator.comparing(EventFullDto::getEventDate)).collect(Collectors.toList());
+    }
+
+    public List<EventFullDto> getMostLikedEvents(Integer from, Integer size) {
+        PageRequest pageRequest = PageRequest.of(from, size);
+        List<LikesCount> eventLikes = likeRepository.getMostLiked(pageRequest);
+        return eventCommonService.getMostLikedCommon(eventLikes);
+    }
+
+    public List<EventFullDto> getMostLikedBetweenDates(int from, int size, LocalDateTime start, LocalDateTime end) {
+        PageRequest pageRequest = PageRequest.of(from, size);
+        List<LikesCount> eventLikes = likeRepository.getMostLikedBetweenDates(pageRequest, start, end);
+        return eventCommonService.getMostLikedCommon(eventLikes);
     }
 }
