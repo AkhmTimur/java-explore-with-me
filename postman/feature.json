@@ -101,13 +101,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/events/mostLiked?from=0&size=10",
+							"raw": "{{baseUrl}}/events?from=0&size=10&sort=RATING",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
-								"events",
-								"mostLiked"
+								"events"
 							],
 							"query": [
 								{
@@ -117,6 +116,10 @@
 								{
 									"key": "size",
 									"value": "10"
+								},
+								{
+									"key": "sort",
+									"value": "RATING"
 								}
 							]
 						}
@@ -215,13 +218,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/events/mostLiked?from=0&size=10",
+							"raw": "{{baseUrl}}/events?from=0&size=10&sort=RATING",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
-								"events",
-								"mostLiked"
+								"events"
 							],
 							"query": [
 								{
@@ -231,6 +233,10 @@
 								{
 									"key": "size",
 									"value": "10"
+								},
+								{
+									"key": "sort",
+									"value": "RATING"
 								}
 							]
 						}
@@ -285,13 +291,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/events/mostLikedBetweenDates?from=0&size=10&rangeStart=2022-01-06%2013%3A30%3A38",
+							"raw": "{{baseUrl}}/events?from=0&size=10&rangeStart=2022-01-06%2013%3A30%3A38&sort=RATING",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
-								"events",
-								"mostLikedBetweenDates"
+								"events"
 							],
 							"query": [
 								{
@@ -305,6 +310,10 @@
 								{
 									"key": "rangeStart",
 									"value": "2022-01-06%2013%3A30%3A38"
+								},
+								{
+									"key": "sort",
+									"value": "RATING"
 								}
 							]
 						}
@@ -336,13 +345,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/events/mostLikedBetweenDates?from=0&size=10&rangeStart=2022-01-06%2013%3A30%3A38&rangeEnd=2022-01-07%2013%3A30%3A38",
+							"raw": "{{baseUrl}}/events?from=0&size=10&rangeStart=2022-01-06%2013%3A30%3A38&rangeEnd=2022-01-07%2013%3A30%3A38&sort=RATING",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
-								"events",
-								"mostLikedBetweenDates"
+								"events"
 							],
 							"query": [
 								{
@@ -360,6 +368,10 @@
 								{
 									"key": "rangeEnd",
 									"value": "2022-01-07%2013%3A30%3A38"
+								},
+								{
+									"key": "sort",
+									"value": "RATING"
 								}
 							]
 						}
@@ -458,13 +470,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/events/mostLiked?from=0&size=10",
+							"raw": "{{baseUrl}}/events?from=0&size=10&sort=RATING",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
-								"events",
-								"mostLiked"
+								"events"
 							],
 							"query": [
 								{
@@ -474,6 +485,10 @@
 								{
 									"key": "size",
 									"value": "10"
+								},
+								{
+									"key": "sort",
+									"value": "RATING"
 								}
 							]
 						}
@@ -528,15 +543,20 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/users/:uid/events/mostLikedCreatedByMe",
+							"raw": "{{baseUrl}}/users/:uid/events?isRating=true",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"users",
 								":uid",
-								"events",
-								"mostLikedCreatedByMe"
+								"events"
+							],
+							"query": [
+								{
+									"key": "isRating",
+									"value": "true"
+								}
 							],
 							"variable": [
 								{
@@ -640,15 +660,20 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/users/:uid/events/mostLikedCreatedByMe",
+							"raw": "{{baseUrl}}/users/:uid/events?isRating=true",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"users",
 								":uid",
-								"events",
-								"mostLikedCreatedByMe"
+								"events"
+							],
+							"query": [
+								{
+									"key": "isRating",
+									"value": "true"
+								}
 							],
 							"variable": [
 								{
