@@ -21,10 +21,10 @@ import static ru.practicum.ewm.mapper.UserMapper.userToDto;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserService {
     private final UserRepository userRepository;
 
-    @Transactional
     public UserDto addUser(NewUserRequest userDto) {
         Optional<User> user = userRepository.findByName(userDto.getName());
         if (user.isPresent()) {
@@ -33,12 +33,12 @@ public class UserService {
         return userToDto(userRepository.save(userRequestToUser(userDto)));
     }
 
-    @Transactional
     public void deleteUser(Long userId) {
         userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         userRepository.deleteById(userId);
     }
 
+    @Transactional(readOnly = true)
     public List<UserDto> getUsers(List<Long> ids, int from, int size) {
         PageRequest pageRequest = PageRequest.of(from, size);
         List<User> users = userRepository.findAllByIdIn(ids, pageRequest);

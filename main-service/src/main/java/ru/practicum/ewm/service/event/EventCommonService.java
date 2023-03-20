@@ -79,24 +79,25 @@ public class EventCommonService {
         if (start.isEmpty()) {
             return new HashMap<>();
         }
+
         List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
         List<String> uris = eventIds.stream().map(id -> "/events/" + id).collect(Collectors.toList());
 
         ResponseEntity<Object> response = statsClient.getStats(new HitInDto(start.get(), LocalDateTime.now().withNano(0), uris, unique));
-        List<HitCountDto> stats;
+        Map<String, Long> stats;
         ObjectMapper mapper = new ObjectMapper();
         try {
-            stats = Arrays.asList(mapper.readValue(mapper.writeValueAsString(response.getBody()), HitCountDto[].class));
+            HitCountDto[] hitCountDtos = mapper.readValue(mapper.writeValueAsString(response.getBody()), HitCountDto[].class);
+            stats = Arrays.stream(hitCountDtos).collect(Collectors.toMap(HitCountDto::getUri, HitCountDto::getHits));
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage());
         }
 
         for (Long eventId : eventIds) {
             Long views = 0L;
-            Optional<Long> stat = stats.stream()
-                    .filter(s -> s.getUri().equals("/events/" + eventId)).map(HitCountDto::getHits).findFirst();
-            if (stat.isPresent()) {
-                views = stat.get();
+            Long stat = stats.getOrDefault("/events/" + eventId, null);
+            if (stat != null) {
+                views = stat;
             }
             result.put(eventId, views);
         }

@@ -31,6 +31,7 @@ import static ru.practicum.ewm.mapper.EventMapper.newEventDtoToEvent;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class EventPrivateService {
     private final EventRepository eventRepository;
     private final EntityValidator entityValidator;
@@ -38,7 +39,6 @@ public class EventPrivateService {
     private final RequestService requestService;
     private final LikeRepository likeRepository;
 
-    @Transactional
     public EventFullDto addEvent(Long userId, NewEventDto newEventDto) {
         LocalDateTime plus2 = LocalDateTime.now().withNano(0).plusHours(2);
         if (newEventDto.getEventDate().isBefore(plus2)) {
@@ -56,7 +56,10 @@ public class EventPrivateService {
     }
 
     @Transactional(readOnly = true)
-    public List<EventFullDto> getUserEvents(Long userId, long from, int size) {
+    public List<EventFullDto> getUserEvents(Long userId, Integer from, Integer size, Boolean isRating) {
+        if (isRating) {
+            return getMostLikedEventsCreatedByUser(userId, from, size);
+        }
         PageRequest pageRequest = PageRequest.of(0, size);
         List<Event> events = eventRepository
                 .findAllByIdIsGreaterThanEqualAndInitiatorIdIs(from, userId, pageRequest);
@@ -85,7 +88,6 @@ public class EventPrivateService {
         return eventFullDto;
     }
 
-    @Transactional
     public EventFullDto updateEvent(Long userId, Long eventId, UpdateEventRequest updateEventUserRequest) {
         Event event = entityValidator.getEventIfExist(eventId);
         if (!Objects.equals(event.getInitiator().getId(), userId)) {
@@ -108,7 +110,6 @@ public class EventPrivateService {
         return eventToEventFullDto(eventRepository.save(updatedEvent));
     }
 
-    @Transactional
     public void addLikeToEvent(Long userId, Long eventId) {
         Event event = entityValidator.getEventIfExist(eventId);
         User user = entityValidator.getUserIfExist(userId);
@@ -116,7 +117,6 @@ public class EventPrivateService {
         likeRepository.save(like);
     }
 
-    @Transactional
     public void dislikeToEvent(Long userId, Long eventId) {
         Event event = entityValidator.getEventIfExist(eventId);
         User user = entityValidator.getUserIfExist(userId);

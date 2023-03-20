@@ -17,11 +17,11 @@ import static ru.practicum.ewm.mapper.CategoryMapper.categoryToDto;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CategoryPublicService {
     private final CategoryRepository categoryRepository;
     private final EntityValidator entityValidator;
 
-    @Transactional(readOnly = true)
     public List<CategoryDto> getCategories(Long from, Integer size) {
         PageRequest pageRequest = PageRequest.of(0, size);
         List<Category> foundCategories = categoryRepository
@@ -29,7 +29,6 @@ public class CategoryPublicService {
         return foundCategories.stream().map(CategoryMapper::categoryToDto).collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public CategoryDto getCategory(Long catId) {
         return categoryToDto(entityValidator.getCategoryIfExist(catId));
     }

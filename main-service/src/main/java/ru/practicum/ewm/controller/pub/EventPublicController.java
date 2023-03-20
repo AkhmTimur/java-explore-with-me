@@ -58,24 +58,4 @@ public class EventPublicController {
                 eventPublicService.search(eventPublicSearch, request.getRemoteAddr());
         return new ResponseEntity<>(eventFullDtos, HttpStatus.OK);
     }
-
-    @GetMapping("/mostLiked")
-    public ResponseEntity<Object> getMostLikedEvents(@RequestParam(defaultValue = "0") Integer from,
-                                                     @RequestParam(defaultValue = "10") Integer size) {
-        return new ResponseEntity<>(eventPublicService.getMostLikedEvents(from, size), HttpStatus.OK);
-    }
-
-    @GetMapping("/mostLikedBetweenDates")
-    public ResponseEntity<Object> getMostLikedBetweenDates(@RequestParam(defaultValue = "0") int from,
-                                                           @RequestParam(defaultValue = "10") int size,
-                                                           @RequestParam @DateTimeFormat(pattern = DATE_TIME_PATTERN)
-                                                           LocalDateTime rangeStart,
-                                                           @RequestParam(required = false)
-                                                           @DateTimeFormat(pattern = DATE_TIME_PATTERN)
-                                                           LocalDateTime rangeEnd) {
-        if (rangeEnd == null) {
-            rangeEnd = LocalDateTime.now().withNano(0);
-        }
-        return new ResponseEntity<>(eventPublicService.getMostLikedBetweenDates(from, size, rangeStart, rangeEnd), HttpStatus.OK);
-    }
 }

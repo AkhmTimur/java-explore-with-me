@@ -25,11 +25,11 @@ import static ru.practicum.ewm.mapper.RequestMapper.requestToDto;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class RequestService {
     private final RequestRepository requestRepository;
     private final EntityValidator entityValidator;
 
-    @Transactional
     public ParticipationRequestDto addRequest(Long eventId, Long userId) {
         User user = entityValidator.getUserIfExist(userId);
         Event event = entityValidator.getEventIfExist(eventId);
@@ -65,12 +65,12 @@ public class RequestService {
         return requestToDto(requestRepository.save(participationRequest));
     }
 
+    @Transactional(readOnly = true)
     public List<ParticipationRequest> findConfirmedRequests(List<Event> events) {
         List<ParticipationRequest> result = requestRepository.findAllByEventIn(events);
         return result.stream().filter(r -> r.getStatus().equals(RequestStatus.CONFIRMED)).collect(Collectors.toList());
     }
 
-    @Transactional
     public ParticipationRequestDto cancelRequest(Long requestId, Long userId) {
         User user = entityValidator.getUserIfExist(userId);
         ParticipationRequest request = entityValidator.getRequestIfExist(requestId);
@@ -98,7 +98,6 @@ public class RequestService {
         return requests.stream().map(RequestMapper::requestToDto).collect(Collectors.toList());
     }
 
-    @Transactional
     public EventRequestStatusUpdateResult update(Long eventId, Long userId, EventRequestStatusUpdateRequest request) {
         Event event = entityValidator.getEventIfExist(eventId);
         User user = entityValidator.getUserIfExist(userId);

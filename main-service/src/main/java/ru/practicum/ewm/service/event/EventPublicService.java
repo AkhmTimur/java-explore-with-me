@@ -32,6 +32,7 @@ import static ru.practicum.ewm.mapper.EventMapper.eventToEventFullDto;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class EventPublicService {
     private final EventRepository eventRepository;
     private final StatsClient statsClient;
@@ -40,7 +41,6 @@ public class EventPublicService {
     private final RequestService requestService;
     private final LikeRepository likeRepository;
 
-    @Transactional(readOnly = true)
     public EventFullDto getEvent(Long eventId, HttpServletRequest request) {
         Event event = entityValidator.getEventIfExist(eventId);
         if (!event.getState().equals(EventState.PUBLISHED.toString())) {
@@ -62,11 +62,15 @@ public class EventPublicService {
         return eventFullDto;
     }
 
-
-    @Transactional(readOnly = true)
     public List<EventFullDto> search(EventPublicSearch ev, String ip) {
         if (ev == null) {
             return Collections.emptyList();
+        }
+        if (ev.getSort() != null && ev.getSort().equals(Sort.RATING)) {
+            if ((ev.getRangeStart() == null && ev.getRangeEnd() == null)) {
+                return getMostLikedEvents(ev.getFrom(), ev.getSize());
+            }
+            return getMostLikedBetweenDates(ev.getFrom(), ev.getSize(), ev.getRangeStart(), ev.getRangeEnd());
         }
         List<Event> events = eventRepository.publicSearch(ev.getText(), ev.getCategories(), ev.getPaid(),
                 ev.getRangeStart(), ev.getRangeEnd(), ev.getFrom(), ev.getSize());
@@ -103,6 +107,9 @@ public class EventPublicService {
     }
 
     public List<EventFullDto> getMostLikedBetweenDates(int from, int size, LocalDateTime start, LocalDateTime end) {
+        if (end == null) {
+            end = LocalDateTime.now().withNano(0);
+        }
         PageRequest pageRequest = PageRequest.of(from, size);
         List<LikesCount> eventLikes = likeRepository.getMostLikedBetweenDates(pageRequest, start, end);
         return eventCommonService.getMostLikedCommon(eventLikes);

@@ -20,6 +20,7 @@ import static ru.practicum.ewm.mapper.EventMapper.eventToEventFullDto;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class EventAdminService {
     private final EventRepository eventRepository;
     private final EntityValidator entityValidator;
@@ -32,7 +33,6 @@ public class EventAdminService {
         return eventCommonService.setViewsToEvents(events);
     }
 
-    @Transactional
     public EventFullDto adminUpdateEvent(Long eventId, UpdateEventRequest updateEventRequest) {
         Event event = entityValidator.getEventIfExist(eventId);
         if (!event.getState().equals(EventState.PENDING.toString())) {
