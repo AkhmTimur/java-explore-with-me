@@ -10,9 +10,10 @@ import ru.practicum.ewm.model.user.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface LikeRepository extends JpaRepository<Like, Long> {
-    Like findByEventIsAndUserIs(Event event, User user);
+    Optional<Like> findByEventIsAndUserIs(Event event, User user);
 
     @Query("select new ru.practicum.ewm.model.eventLike.LikesCount(l.event.id, count(l.user.id)) from Like l group by l.event.id order by count(l.user.id) desc")
     List<LikesCount> getMostLiked(PageRequest pageRequest);

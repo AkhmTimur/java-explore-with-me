@@ -5,10 +5,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.category.CategoryDto;
+import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.mapper.CategoryMapper;
 import ru.practicum.ewm.model.category.Category;
 import ru.practicum.ewm.repository.category.CategoryRepository;
-import ru.practicum.ewm.validator.EntityValidator;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,7 +20,6 @@ import static ru.practicum.ewm.mapper.CategoryMapper.categoryToDto;
 @Transactional(readOnly = true)
 public class CategoryPublicService {
     private final CategoryRepository categoryRepository;
-    private final EntityValidator entityValidator;
 
     public List<CategoryDto> getCategories(Long from, Integer size) {
         PageRequest pageRequest = PageRequest.of(0, size);
@@ -30,6 +29,11 @@ public class CategoryPublicService {
     }
 
     public CategoryDto getCategory(Long catId) {
-        return categoryToDto(entityValidator.getCategoryIfExist(catId));
+        return categoryToDto(getCategoryIfExist(catId));
+    }
+
+    public Category getCategoryIfExist(Long catId) {
+        return categoryRepository.findById(catId)
+                .orElseThrow(() -> new NotFoundException(Category.class.getSimpleName() + " not found"));
     }
 }

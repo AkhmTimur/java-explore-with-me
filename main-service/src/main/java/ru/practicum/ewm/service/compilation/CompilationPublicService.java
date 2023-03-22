@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.compilation.CompilationDto;
 import ru.practicum.ewm.dto.event.EventShortDto;
+import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.mapper.CompilationMapper;
 import ru.practicum.ewm.model.event.Event;
 import ru.practicum.ewm.model.event.compilation.Compilation;
@@ -13,7 +14,6 @@ import ru.practicum.ewm.model.request.ParticipationRequest;
 import ru.practicum.ewm.repository.compilation.CompilationRepository;
 import ru.practicum.ewm.service.event.EventCommonService;
 import ru.practicum.ewm.service.request.RequestService;
-import ru.practicum.ewm.validator.EntityValidator;
 
 import java.util.List;
 import java.util.Map;
@@ -27,12 +27,11 @@ import static ru.practicum.ewm.mapper.CompilationMapper.compilationToCompilation
 @Transactional(readOnly = true)
 public class CompilationPublicService {
     private final CompilationRepository compilationRepository;
-    private final EntityValidator entityValidator;
     private final EventCommonService eventCommonService;
     private final RequestService requestService;
 
     public CompilationDto getCompilation(Long comId) {
-        Compilation compilation = entityValidator.getCompilationIfExist(comId);
+        Compilation compilation = getCompilationIfExist(comId);
         CompilationDto compilationDto = compilationToCompilationDto(compilation);
         setViewsCompilationDto(compilation.getEvents(), compilationDto);
         List<ParticipationRequest> confirmedRequests = requestService.findConfirmedRequests(compilation.getEvents());
@@ -70,5 +69,10 @@ public class CompilationPublicService {
                             .filter(r -> r.getEvent().getId().equals(eventShortDto.getId())).count()
             );
         }
+    }
+
+    public Compilation getCompilationIfExist(Long comId) {
+        return compilationRepository.findById(comId)
+                .orElseThrow(() -> new NotFoundException(Compilation.class.getSimpleName() + " not found"));
     }
 }

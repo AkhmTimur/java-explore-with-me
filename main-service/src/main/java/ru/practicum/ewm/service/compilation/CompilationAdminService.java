@@ -14,7 +14,6 @@ import ru.practicum.ewm.repository.compilation.CompilationRepository;
 import ru.practicum.ewm.repository.event.EventRepository;
 import ru.practicum.ewm.service.event.EventCommonService;
 import ru.practicum.ewm.service.request.RequestService;
-import ru.practicum.ewm.validator.EntityValidator;
 
 import java.util.List;
 import java.util.Map;
@@ -26,12 +25,11 @@ import static ru.practicum.ewm.mapper.CompilationMapper.compilationToNewCompilat
 @RequiredArgsConstructor
 @Transactional
 public class CompilationAdminService {
-
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
     private final EventCommonService eventCommonService;
     private final RequestService requestService;
-    private final EntityValidator entityValidator;
+    private final CompilationPublicService compilationPublicService;
 
     public CompilationDto addCompilation(NewCompilationDto newCompilationDto) {
         Compilation compilation = compilationToNewCompilationDto(newCompilationDto);
@@ -48,12 +46,12 @@ public class CompilationAdminService {
     }
 
     public void deleteCompilation(Long comId) {
-        entityValidator.getCompilationIfExist(comId);
+        compilationPublicService.getCompilationIfExist(comId);
         compilationRepository.deleteById(comId);
     }
 
     public CompilationDto updateCompilation(Long comId, UpdateCompilationRequest updateRequest) {
-        Compilation compilation = entityValidator.getCompilationIfExist(comId);
+        Compilation compilation = compilationPublicService.getCompilationIfExist(comId);
         if (updateRequest.getEvents() != null) {
             List<Event> events = eventRepository.findAllById(updateRequest.getEvents());
             compilation.setEvents(events);

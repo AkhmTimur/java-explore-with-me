@@ -17,9 +17,10 @@ import ru.practicum.ewm.model.request.ParticipationRequest;
 import ru.practicum.ewm.model.user.User;
 import ru.practicum.ewm.repository.event.EventRepository;
 import ru.practicum.ewm.repository.like.LikeRepository;
+import ru.practicum.ewm.service.category.CategoryPublicService;
 import ru.practicum.ewm.service.request.RequestService;
+import ru.practicum.ewm.service.user.UserService;
 import ru.practicum.ewm.util.EventState;
-import ru.practicum.ewm.validator.EntityValidator;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,20 +35,21 @@ import static ru.practicum.ewm.mapper.EventMapper.newEventDtoToEvent;
 @Transactional
 public class EventPrivateService {
     private final EventRepository eventRepository;
-    private final EntityValidator entityValidator;
     private final EventCommonService eventCommonService;
     private final RequestService requestService;
     private final LikeRepository likeRepository;
+    private final CategoryPublicService categoryPublicService;
+    private final UserService userService;
 
     public EventFullDto addEvent(Long userId, NewEventDto newEventDto) {
         LocalDateTime plus2 = LocalDateTime.now().withNano(0).plusHours(2);
         if (newEventDto.getEventDate().isBefore(plus2)) {
             throw new DataConflictException("Event date should be in the future more then 2 hours");
         }
-        Category category = entityValidator.getCategoryIfExist(newEventDto.getCategory());
+        Category category = categoryPublicService.getCategoryIfExist(newEventDto.getCategory());
         Event event = newEventDtoToEvent(newEventDto, category);
         event.setCategory(category);
-        User initiator = entityValidator.getUserIfExist(userId);
+        User initiator = userService.getUserIfExist(userId);
         event.setInitiator(initiator);
         event.setState(EventState.PENDING.toString());
         event.setCreatedOn(LocalDateTime.now().withNano(0));
@@ -73,7 +75,7 @@ public class EventPrivateService {
 
     @Transactional(readOnly = true)
     public EventFullDto getUserEvent(Long userId, Long eventId) {
-        Event event = entityValidator.getEventIfExist(eventId);
+        Event event = eventCommonService.getEventIfExist(eventId);
         if (!Objects.equals(event.getInitiator().getId(), userId)) {
             throw new NotFoundException("Initiator and user have different ids");
         }
@@ -89,7 +91,7 @@ public class EventPrivateService {
     }
 
     public EventFullDto updateEvent(Long userId, Long eventId, UpdateEventRequest updateEventUserRequest) {
-        Event event = entityValidator.getEventIfExist(eventId);
+        Event event = eventCommonService.getEventIfExist(eventId);
         if (!Objects.equals(event.getInitiator().getId(), userId)) {
             throw new DataConflictException("Only initiator can update event");
         }
@@ -111,24 +113,29 @@ public class EventPrivateService {
     }
 
     public void addLikeToEvent(Long userId, Long eventId) {
-        Event event = entityValidator.getEventIfExist(eventId);
-        User user = entityValidator.getUserIfExist(userId);
+        Event event = eventCommonService.getEventIfExist(eventId);
+        User user = userService.getUserIfExist(userId);
         Like like = new Like(event, user, LocalDateTime.now().withNano(0));
         likeRepository.save(like);
     }
 
     public void dislikeToEvent(Long userId, Long eventId) {
-        Event event = entityValidator.getEventIfExist(eventId);
-        User user = entityValidator.getUserIfExist(userId);
-        Like like = entityValidator.getLikeIfExist(event, user);
+        Event event = eventCommonService.getEventIfExist(eventId);
+        User user = userService.getUserIfExist(userId);
+        Like like = getLikeIfExist(event, user);
         likeRepository.deleteById(like.getLikeId());
     }
 
     public List<EventFullDto> getMostLikedEventsCreatedByUser(Long userId, Integer from, Integer size) {
-        entityValidator.getUserIfExist(userId);
+        userService.getUserIfExist(userId);
         PageRequest pageRequest = PageRequest.of(from, size);
         List<LikesCount> likesCounts = likeRepository.getMostLikedEventsCreatedByUser(userId, pageRequest);
         return eventCommonService.getMostLikedCommon(likesCounts);
+    }
+
+    public Like getLikeIfExist(Event event, User user) {
+        return likeRepository.findByEventIsAndUserIs(event, user)
+                .orElseThrow(() -> new NotFoundException("Event " + event + " like from user " + user + " not found"));
     }
 }
 

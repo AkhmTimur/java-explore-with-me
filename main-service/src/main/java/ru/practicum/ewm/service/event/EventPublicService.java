@@ -18,7 +18,6 @@ import ru.practicum.ewm.stats.dto.HitDto;
 import ru.practicum.ewm.stats.stats.StatsClient;
 import ru.practicum.ewm.util.EventState;
 import ru.practicum.ewm.util.Sort;
-import ru.practicum.ewm.validator.EntityValidator;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -36,13 +35,12 @@ import static ru.practicum.ewm.mapper.EventMapper.eventToEventFullDto;
 public class EventPublicService {
     private final EventRepository eventRepository;
     private final StatsClient statsClient;
-    private final EntityValidator entityValidator;
     private final EventCommonService eventCommonService;
     private final RequestService requestService;
     private final LikeRepository likeRepository;
 
     public EventFullDto getEvent(Long eventId, HttpServletRequest request) {
-        Event event = entityValidator.getEventIfExist(eventId);
+        Event event = eventCommonService.getEventIfExist(eventId);
         if (!event.getState().equals(EventState.PUBLISHED.toString())) {
             throw new NotFoundException(event + " not found");
         }

@@ -11,7 +11,6 @@ import ru.practicum.ewm.model.event.UpdateEventRequest;
 import ru.practicum.ewm.repository.event.EventRepository;
 import ru.practicum.ewm.util.ActionStatus;
 import ru.practicum.ewm.util.EventState;
-import ru.practicum.ewm.validator.EntityValidator;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,7 +22,6 @@ import static ru.practicum.ewm.mapper.EventMapper.eventToEventFullDto;
 @Transactional
 public class EventAdminService {
     private final EventRepository eventRepository;
-    private final EntityValidator entityValidator;
     private final EventCommonService eventCommonService;
 
     @Transactional(readOnly = true)
@@ -34,7 +32,7 @@ public class EventAdminService {
     }
 
     public EventFullDto adminUpdateEvent(Long eventId, UpdateEventRequest updateEventRequest) {
-        Event event = entityValidator.getEventIfExist(eventId);
+        Event event = eventCommonService.getEventIfExist(eventId);
         if (!event.getState().equals(EventState.PENDING.toString())) {
             throw new DataConflictException("Wrong event state: " + event.getState());
         }

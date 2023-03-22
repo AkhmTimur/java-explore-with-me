@@ -45,4 +45,8 @@ public class UserService {
         return users.stream().map(UserMapper::userToDto).collect(Collectors.toList());
     }
 
+    public User getUserIfExist(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(User.class.getSimpleName() + " not found"));
+    }
 }

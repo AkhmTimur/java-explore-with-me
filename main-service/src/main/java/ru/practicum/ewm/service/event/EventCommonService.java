@@ -6,17 +6,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.dto.event.EventFullDto;
 import ru.practicum.ewm.exception.DataConflictException;
+import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.model.category.Category;
 import ru.practicum.ewm.model.event.Event;
 import ru.practicum.ewm.model.event.UpdateEventRequest;
 import ru.practicum.ewm.model.eventLike.LikesCount;
 import ru.practicum.ewm.repository.event.EventRepository;
+import ru.practicum.ewm.service.category.CategoryPublicService;
 import ru.practicum.ewm.stats.dto.HitCountDto;
 import ru.practicum.ewm.stats.dto.HitInDto;
 import ru.practicum.ewm.stats.stats.StatsClient;
 import ru.practicum.ewm.util.EventState;
-import ru.practicum.ewm.validator.EntityValidator;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -27,15 +28,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EventCommonService {
     private final StatsClient statsClient;
-    private final EntityValidator entityValidator;
     private final EventRepository eventRepository;
+    private final CategoryPublicService categoryPublicService;
 
     public Event setUpdateRequestParamToEvent(Event event, UpdateEventRequest updateEventRequest) {
         if (updateEventRequest.getAnnotation() != null) {
             event.setAnnotation(updateEventRequest.getAnnotation());
         }
         if (updateEventRequest.getCategory() != null) {
-            Category category = entityValidator.getCategoryIfExist(updateEventRequest.getCategory());
+            Category category = categoryPublicService.getCategoryIfExist(updateEventRequest.getCategory());
             event.setCategory(category);
         }
         if (updateEventRequest.getDescription() != null) {
@@ -128,5 +129,10 @@ public class EventCommonService {
             }
         }
         return fullDtos;
+    }
+
+    public Event getEventIfExist(Long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException(Event.class.getSimpleName() + " not found"));
     }
 }
