@@ -18,7 +18,7 @@ import static ru.practicum.ewm.util.DateTimePattern.DATE_TIME_PATTERN;
 public class EventFullDto {
     private String annotation;
     private CategoryDto category;
-    private int confirmedRequests;
+    private Long confirmedRequests;
     @JsonFormat(pattern = DATE_TIME_PATTERN)
     private LocalDateTime createdOn;
     private String description;
@@ -35,5 +35,5 @@ public class EventFullDto {
     private String state;
     private String title;
     private Long views;
-    private Long likesCount;
+    private Long likesCount = 0L;
 }

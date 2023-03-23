@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.dto.event.EventFullDto;
-import ru.practicum.ewm.dto.event.EventPublicSearch;
+import ru.practicum.ewm.dto.event.EventSearch;
 import ru.practicum.ewm.service.event.EventPublicService;
 import ru.practicum.ewm.util.Sort;
 
@@ -39,11 +39,11 @@ public class EventPublicController {
                                          @RequestParam(required = false)
                                          @DateTimeFormat(pattern = DATE_TIME_PATTERN) LocalDateTime rangeEnd,
                                          @RequestParam(required = false) Boolean onlyAvailable,
-                                         @RequestParam(required = false) Sort sort,
+                                         @RequestParam(defaultValue = "EVENT_DATE") Sort sort,
                                          @RequestParam(defaultValue = "0") int from,
                                          @RequestParam(defaultValue = "10") int size,
                                          HttpServletRequest request) {
-        EventPublicSearch eventPublicSearch = EventPublicSearch.builder()
+        EventSearch eventSearch = EventSearch.builder()
                 .text(text)
                 .categories(categories)
                 .paid(paid)
@@ -55,7 +55,7 @@ public class EventPublicController {
                 .size(size)
                 .build();
         List<EventFullDto> eventFullDtos =
-                eventPublicService.search(eventPublicSearch, request.getRemoteAddr());
+                eventPublicService.search(eventSearch, request.getRemoteAddr());
         return new ResponseEntity<>(eventFullDtos, HttpStatus.OK);
     }
 }

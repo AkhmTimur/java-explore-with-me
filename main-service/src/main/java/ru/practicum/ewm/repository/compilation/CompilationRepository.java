@@ -8,5 +8,5 @@ import java.util.List;
 
 
 public interface CompilationRepository extends JpaRepository<Compilation, Long> {
-    List<Compilation> findAllByIdIsGreaterThanEqualAndPinnedIs(Long from, boolean pinned, Pageable pageable);
+    List<Compilation> findAllByPinnedIs(boolean pinned, Pageable pageable);
 }

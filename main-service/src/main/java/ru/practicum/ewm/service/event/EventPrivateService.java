@@ -12,20 +12,18 @@ import ru.practicum.ewm.model.category.Category;
 import ru.practicum.ewm.model.event.Event;
 import ru.practicum.ewm.model.event.UpdateEventRequest;
 import ru.practicum.ewm.model.eventLike.Like;
-import ru.practicum.ewm.model.eventLike.LikesCount;
-import ru.practicum.ewm.model.request.ParticipationRequest;
 import ru.practicum.ewm.model.user.User;
 import ru.practicum.ewm.repository.event.EventRepository;
 import ru.practicum.ewm.repository.like.LikeRepository;
 import ru.practicum.ewm.service.category.CategoryPublicService;
-import ru.practicum.ewm.service.request.RequestService;
 import ru.practicum.ewm.service.user.UserService;
 import ru.practicum.ewm.util.EventState;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static ru.practicum.ewm.mapper.EventMapper.eventToEventFullDto;
 import static ru.practicum.ewm.mapper.EventMapper.newEventDtoToEvent;
@@ -36,7 +34,6 @@ import static ru.practicum.ewm.mapper.EventMapper.newEventDtoToEvent;
 public class EventPrivateService {
     private final EventRepository eventRepository;
     private final EventCommonService eventCommonService;
-    private final RequestService requestService;
     private final LikeRepository likeRepository;
     private final CategoryPublicService categoryPublicService;
     private final UserService userService;
@@ -59,16 +56,13 @@ public class EventPrivateService {
 
     @Transactional(readOnly = true)
     public List<EventFullDto> getUserEvents(Long userId, Integer from, Integer size, Boolean isRating) {
-        if (isRating) {
-            return getMostLikedEventsCreatedByUser(userId, from, size);
-        }
-        PageRequest pageRequest = PageRequest.of(0, size);
-        List<Event> events = eventRepository
-                .findAllByIdIsGreaterThanEqualAndInitiatorIdIs(from, userId, pageRequest);
+        PageRequest pageRequest = PageRequest.of(from, size);
+        List<Event> events = eventRepository.findAllByInitiatorId(userId, pageRequest);
         List<EventFullDto> eventFullDtos = eventCommonService.setViewsToEvents(events);
-        List<ParticipationRequest> confirmedRequests = requestService.findConfirmedRequests(events);
-        for (EventFullDto fullDto : eventFullDtos) {
-            fullDto.setConfirmedRequests((int) confirmedRequests.stream().filter(r -> r.getEvent().getId().equals(fullDto.getId())).count());
+        eventCommonService.setLikesToEventDtos(events, eventFullDtos);
+        if (isRating) {
+            return eventFullDtos.stream()
+                    .sorted(Comparator.comparing(EventFullDto::getLikesCount)).collect(Collectors.toList());
         }
         return eventFullDtos;
     }
@@ -79,15 +73,8 @@ public class EventPrivateService {
         if (!Objects.equals(event.getInitiator().getId(), userId)) {
             throw new NotFoundException("Initiator and user have different ids");
         }
-        EventFullDto eventFullDto = eventToEventFullDto(event);
-        if (eventFullDto.getState().equals(EventState.PUBLISHED.toString())) {
-            Map<Long, Long> views = eventCommonService.getStats(List.of(event), false);
-            eventFullDto.setViews(views.get(event.getId()));
-            List<ParticipationRequest> confirmedRequests = requestService
-                    .findConfirmedRequests(List.of(event));
-            eventFullDto.setConfirmedRequests(confirmedRequests.size());
-        }
-        return eventFullDto;
+        eventCommonService.setViewsToEvents(List.of(event));
+        return eventToEventFullDto(event);
     }
 
     public EventFullDto updateEvent(Long userId, Long eventId, UpdateEventRequest updateEventUserRequest) {
@@ -115,6 +102,15 @@ public class EventPrivateService {
     public void addLikeToEvent(Long userId, Long eventId) {
         Event event = eventCommonService.getEventIfExist(eventId);
         User user = userService.getUserIfExist(userId);
+        if (likeRepository.findByEventIsAndUserIs(event, user).isPresent()) {
+            throw new DataConflictException("Like to event " + event + " from user " + user + " already exist");
+        }
+        if (event.getInitiator().getId().equals(user.getId())) {
+            throw new DataConflictException("Initiator cannot like hiw own event");
+        }
+        if (!event.getState().equals(EventState.PUBLISHED.toString())) {
+            throw new DataConflictException("Cannot like unpublished events");
+        }
         Like like = new Like(event, user, LocalDateTime.now().withNano(0));
         likeRepository.save(like);
     }
@@ -122,20 +118,9 @@ public class EventPrivateService {
     public void dislikeToEvent(Long userId, Long eventId) {
         Event event = eventCommonService.getEventIfExist(eventId);
         User user = userService.getUserIfExist(userId);
-        Like like = getLikeIfExist(event, user);
-        likeRepository.deleteById(like.getLikeId());
-    }
-
-    public List<EventFullDto> getMostLikedEventsCreatedByUser(Long userId, Integer from, Integer size) {
-        userService.getUserIfExist(userId);
-        PageRequest pageRequest = PageRequest.of(from, size);
-        List<LikesCount> likesCounts = likeRepository.getMostLikedEventsCreatedByUser(userId, pageRequest);
-        return eventCommonService.getMostLikedCommon(likesCounts);
-    }
-
-    public Like getLikeIfExist(Event event, User user) {
-        return likeRepository.findByEventIsAndUserIs(event, user)
+        Like like = likeRepository.findByEventIsAndUserIs(event, user)
                 .orElseThrow(() -> new NotFoundException("Event " + event + " like from user " + user + " not found"));
+        likeRepository.deleteById(like.getId());
     }
 }
 

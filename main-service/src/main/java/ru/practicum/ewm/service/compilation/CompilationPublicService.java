@@ -42,9 +42,9 @@ public class CompilationPublicService {
         return compilationDto;
     }
 
-    public List<CompilationDto> getCompilations(long id, int size, boolean pinned) {
-        PageRequest pageRequest = PageRequest.of(0, size);
-        List<Compilation> compilations = compilationRepository.findAllByIdIsGreaterThanEqualAndPinnedIs(id, pinned, pageRequest);
+    public List<CompilationDto> getCompilations(Integer from, int size, boolean pinned) {
+        PageRequest pageRequest = PageRequest.of(from, size);
+        List<Compilation> compilations = compilationRepository.findAllByPinnedIs(pinned, pageRequest);
         List<CompilationDto> compilationDtos = compilations.stream().map(CompilationMapper::compilationToCompilationDto)
                 .collect(Collectors.toList());
         Set<Event> eventSet = compilations.stream().map(Compilation::getEvents).flatMap(List<Event>::stream)

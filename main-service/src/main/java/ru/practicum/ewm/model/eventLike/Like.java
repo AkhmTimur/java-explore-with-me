@@ -11,15 +11,16 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "event_likes")
+@Table(name = "likes")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+
 public class Like {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long likeId;
+    private Long id;
     @ManyToOne
     private Event event;
     @ManyToOne

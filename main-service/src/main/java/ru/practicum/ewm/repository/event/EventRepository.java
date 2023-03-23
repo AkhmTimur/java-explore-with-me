@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface EventRepository extends JpaRepository<Event, Long>, EventRepositoryCB {
 
-    List<Event> findAllByIdIsGreaterThanEqualAndInitiatorIdIs(long from, Long userId, PageRequest pageRequest);
+    List<Event> findAllByInitiatorId(Long userId, PageRequest pageRequest);
 
     List<Event> findAllByCategoryId(Long categoryId);
 }

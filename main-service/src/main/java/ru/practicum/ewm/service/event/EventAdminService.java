@@ -3,8 +3,8 @@ package ru.practicum.ewm.service.event;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.ewm.dto.event.EventAdminFindDto;
 import ru.practicum.ewm.dto.event.EventFullDto;
+import ru.practicum.ewm.dto.event.EventSearch;
 import ru.practicum.ewm.exception.DataConflictException;
 import ru.practicum.ewm.model.event.Event;
 import ru.practicum.ewm.model.event.UpdateEventRequest;
@@ -25,9 +25,8 @@ public class EventAdminService {
     private final EventCommonService eventCommonService;
 
     @Transactional(readOnly = true)
-    public List<EventFullDto> findByAdmin(EventAdminFindDto e) {
-        List<Event> events = eventRepository.adminSearch(e.getUsers(), e.getStates(), e.getCategories(),
-                e.getRangeStart(), e.getRangeEnd(), e.getFrom(), e.getSize());
+    public List<EventFullDto> findByAdmin(EventSearch e) {
+        List<Event> events = eventRepository.search(e);
         return eventCommonService.setViewsToEvents(events);
     }
 

@@ -11,8 +11,9 @@ import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.model.category.Category;
 import ru.practicum.ewm.model.event.Event;
 import ru.practicum.ewm.model.event.UpdateEventRequest;
-import ru.practicum.ewm.model.eventLike.LikesCount;
+import ru.practicum.ewm.model.eventLike.Like;
 import ru.practicum.ewm.repository.event.EventRepository;
+import ru.practicum.ewm.repository.like.LikeRepository;
 import ru.practicum.ewm.service.category.CategoryPublicService;
 import ru.practicum.ewm.stats.dto.HitCountDto;
 import ru.practicum.ewm.stats.dto.HitInDto;
@@ -30,6 +31,7 @@ public class EventCommonService {
     private final StatsClient statsClient;
     private final EventRepository eventRepository;
     private final CategoryPublicService categoryPublicService;
+    private final LikeRepository likeRepository;
 
     public Event setUpdateRequestParamToEvent(Event event, UpdateEventRequest updateEventRequest) {
         if (updateEventRequest.getAnnotation() != null) {
@@ -95,12 +97,8 @@ public class EventCommonService {
         }
 
         for (Long eventId : eventIds) {
-            Long views = 0L;
-            Long stat = stats.getOrDefault("/events/" + eventId, null);
-            if (stat != null) {
-                views = stat;
-            }
-            result.put(eventId, views);
+            Long stat = stats.getOrDefault("/events/" + eventId, 0L);
+            result.put(eventId, stat);
         }
 
         return result;
@@ -117,22 +115,15 @@ public class EventCommonService {
         return eventFullDtos;
     }
 
-    public List<EventFullDto> getMostLikedCommon(List<LikesCount> eventLikes) {
-        List<Long> eventIds = eventLikes.stream().map(LikesCount::getEventId).collect(Collectors.toList());
-        List<Event> allEvents = eventRepository.findAllById(eventIds);
-        List<EventFullDto> fullDtos = allEvents.stream().map(EventMapper::eventToEventFullDto).collect(Collectors.toList());
-        for (EventFullDto event : fullDtos) {
-            for (LikesCount eventLike : eventLikes) {
-                if (eventLike.getEventId().equals(event.getId())) {
-                    event.setLikesCount(eventLike.getLikesCount());
-                }
-            }
-        }
-        return fullDtos;
-    }
-
     public Event getEventIfExist(Long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException(Event.class.getSimpleName() + " not found"));
+    }
+
+    public void setLikesToEventDtos(List<Event> events, List<EventFullDto> eventFullDtos) {
+        List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
+        List<Like> likes = likeRepository.findByEventIdIn(eventIds);
+        Map<Long, Long> eventLikes = likes.stream().collect(Collectors.groupingBy(l -> l.getEvent().getId(), Collectors.counting()));
+        eventFullDtos.forEach(e -> e.setLikesCount(eventLikes.get(e.getId())));
     }
 }

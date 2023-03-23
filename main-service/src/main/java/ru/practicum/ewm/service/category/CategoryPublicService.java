@@ -21,10 +21,9 @@ import static ru.practicum.ewm.mapper.CategoryMapper.categoryToDto;
 public class CategoryPublicService {
     private final CategoryRepository categoryRepository;
 
-    public List<CategoryDto> getCategories(Long from, Integer size) {
-        PageRequest pageRequest = PageRequest.of(0, size);
-        List<Category> foundCategories = categoryRepository
-                .findAllByIdIsGreaterThanEqualOrderByIdAsc(from, pageRequest);
+    public List<CategoryDto> getCategories(Integer from, Integer size) {
+        PageRequest pageRequest = PageRequest.of(from, size);
+        List<Category> foundCategories = categoryRepository.findAllByOrderByIdAsc(pageRequest);
         return foundCategories.stream().map(CategoryMapper::categoryToDto).collect(Collectors.toList());
     }
 

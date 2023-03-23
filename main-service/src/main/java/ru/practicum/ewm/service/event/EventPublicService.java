@@ -1,18 +1,15 @@
 package ru.practicum.ewm.service.event;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.event.EventFullDto;
-import ru.practicum.ewm.dto.event.EventPublicSearch;
+import ru.practicum.ewm.dto.event.EventSearch;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.model.event.Event;
-import ru.practicum.ewm.model.eventLike.LikesCount;
 import ru.practicum.ewm.model.request.ParticipationRequest;
 import ru.practicum.ewm.repository.event.EventRepository;
-import ru.practicum.ewm.repository.like.LikeRepository;
 import ru.practicum.ewm.service.request.RequestService;
 import ru.practicum.ewm.stats.dto.HitDto;
 import ru.practicum.ewm.stats.stats.StatsClient;
@@ -37,7 +34,6 @@ public class EventPublicService {
     private final StatsClient statsClient;
     private final EventCommonService eventCommonService;
     private final RequestService requestService;
-    private final LikeRepository likeRepository;
 
     public EventFullDto getEvent(Long eventId, HttpServletRequest request) {
         Event event = eventCommonService.getEventIfExist(eventId);
@@ -60,56 +56,36 @@ public class EventPublicService {
         return eventFullDto;
     }
 
-    public List<EventFullDto> search(EventPublicSearch ev, String ip) {
+    public List<EventFullDto> search(EventSearch ev, String ip) {
         if (ev == null) {
             return Collections.emptyList();
         }
-        if (ev.getSort() != null && ev.getSort().equals(Sort.RATING)) {
-            if ((ev.getRangeStart() == null && ev.getRangeEnd() == null)) {
-                return getMostLikedEvents(ev.getFrom(), ev.getSize());
-            }
-            return getMostLikedBetweenDates(ev.getFrom(), ev.getSize(), ev.getRangeStart(), ev.getRangeEnd());
-        }
-        List<Event> events = eventRepository.publicSearch(ev.getText(), ev.getCategories(), ev.getPaid(),
-                ev.getRangeStart(), ev.getRangeEnd(), ev.getFrom(), ev.getSize());
+        List<Event> events = eventRepository.search(ev);
         if (events.isEmpty()) {
             return Collections.emptyList();
         }
-        List<EventFullDto> eventFullDtos = events.stream()
-                .map(EventMapper::eventToEventFullDto).collect(Collectors.toList());
+        List<EventFullDto> eventFullDtos = events.stream().map(EventMapper::eventToEventFullDto).collect(Collectors.toList());
         Map<Long, Long> views = eventCommonService.getStats(events, false);
         eventFullDtos.forEach(e -> e.setViews(views.get(e.getId())));
+        eventCommonService.setLikesToEventDtos(events, eventFullDtos);
         List<ParticipationRequest> confirmedRequests = requestService.findConfirmedRequests(events);
-        for (EventFullDto eventFullDto : eventFullDtos) {
-            eventFullDto.setConfirmedRequests((int) confirmedRequests.stream()
-                    .filter(r -> r.getEvent().getId().equals(eventFullDto.getId())).count());
-        }
+        Map<Long, Long> eventRequestsCount = confirmedRequests.stream().collect(Collectors.groupingBy(r -> r.getEvent().getId(), Collectors.counting()));
+        eventFullDtos.forEach(e -> e.setConfirmedRequests(eventRequestsCount.get(e.getId())));
         HitDto hitDto = HitDto.builder().app("APP_NAME").uri("/events").ip(ip).timestamp(LocalDateTime.now().withNano(0)).build();
         statsClient.createHit(hitDto);
-        events.forEach(e -> {
-            hitDto.setUri("/events/" + e.getId());
-            statsClient.createHit(hitDto);
-        });
-        if (ev.getSort() != null && ev.getSort().equals(Sort.VIEWS)) {
-            return eventFullDtos.stream()
-                    .sorted(Comparator.comparing(EventFullDto::getViews)).collect(Collectors.toList());
+        if (ev.getSort() != null) {
+            if (ev.getSort().equals(Sort.VIEWS)) {
+                return eventFullDtos.stream()
+                        .sorted(Comparator.comparing(EventFullDto::getViews)).collect(Collectors.toList());
+            }
+            if (ev.getSort().equals(Sort.RATING)) {
+                return eventFullDtos.stream().filter(e -> e.getLikesCount() != null).sorted(Comparator.comparing(EventFullDto::getLikesCount)).collect(Collectors.toList());
+            }
+            if (ev.getSort().equals(Sort.EVENT_DATE)) {
+                return eventFullDtos.stream()
+                        .sorted(Comparator.comparing(EventFullDto::getEventDate)).collect(Collectors.toList());
+            }
         }
-        return eventFullDtos.stream()
-                .sorted(Comparator.comparing(EventFullDto::getEventDate)).collect(Collectors.toList());
-    }
-
-    public List<EventFullDto> getMostLikedEvents(Integer from, Integer size) {
-        PageRequest pageRequest = PageRequest.of(from, size);
-        List<LikesCount> eventLikes = likeRepository.getMostLiked(pageRequest);
-        return eventCommonService.getMostLikedCommon(eventLikes);
-    }
-
-    public List<EventFullDto> getMostLikedBetweenDates(int from, int size, LocalDateTime start, LocalDateTime end) {
-        if (end == null) {
-            end = LocalDateTime.now().withNano(0);
-        }
-        PageRequest pageRequest = PageRequest.of(from, size);
-        List<LikesCount> eventLikes = likeRepository.getMostLikedBetweenDates(pageRequest, start, end);
-        return eventCommonService.getMostLikedCommon(eventLikes);
+        return Collections.emptyList();
     }
 }
