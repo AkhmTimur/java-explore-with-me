@@ -21,11 +21,11 @@ import static ru.practicum.ewm.mapper.CategoryMapper.dtoToCategory;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CategoryAdminService {
     private final CategoryRepository categoryRepository;
     private final EventRepository eventRepository;
 
-    @Transactional
     public CategoryDto adminCreateCategory(NewCategoryDto categoryDto) {
         categoryDto.setName(categoryDto.getName().trim());
         Optional<Category> categoryByName = categoryRepository.findByName(categoryDto.getName());
@@ -36,7 +36,6 @@ public class CategoryAdminService {
         return categoryToDto(categoryRepository.save(category));
     }
 
-    @Transactional
     public void adminDeleteCategory(Long categoryId) {
         List<Event> eventList = eventRepository.findAllByCategoryId(categoryId);
         if (!eventList.isEmpty()) {
@@ -49,7 +48,6 @@ public class CategoryAdminService {
         }
     }
 
-    @Transactional
     public CategoryDto adminUpdateCategory(NewCategoryDto categoryDto, Long catId) {
         Category category = categoryRepository.findById(catId)
                 .orElseThrow(() -> new NotFoundException("Category " + categoryDto + " not found"));

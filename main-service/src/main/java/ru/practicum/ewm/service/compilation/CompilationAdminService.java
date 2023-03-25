@@ -2,6 +2,7 @@ package ru.practicum.ewm.service.compilation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.compilation.CompilationDto;
 import ru.practicum.ewm.dto.compilation.NewCompilationDto;
 import ru.practicum.ewm.dto.compilation.UpdateCompilationRequest;
@@ -13,9 +14,7 @@ import ru.practicum.ewm.repository.compilation.CompilationRepository;
 import ru.practicum.ewm.repository.event.EventRepository;
 import ru.practicum.ewm.service.event.EventCommonService;
 import ru.practicum.ewm.service.request.RequestService;
-import ru.practicum.ewm.validator.EntityValidator;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 
@@ -24,15 +23,14 @@ import static ru.practicum.ewm.mapper.CompilationMapper.compilationToNewCompilat
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CompilationAdminService {
-
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
     private final EventCommonService eventCommonService;
     private final RequestService requestService;
-    private final EntityValidator entityValidator;
+    private final CompilationPublicService compilationPublicService;
 
-    @Transactional
     public CompilationDto addCompilation(NewCompilationDto newCompilationDto) {
         Compilation compilation = compilationToNewCompilationDto(newCompilationDto);
         List<Event> events = eventRepository.findAllById(newCompilationDto.getEvents());
@@ -47,15 +45,13 @@ public class CompilationAdminService {
         return compilationDto;
     }
 
-    @Transactional
     public void deleteCompilation(Long comId) {
-        entityValidator.getCompilationIfExist(comId);
+        compilationPublicService.getCompilationIfExist(comId);
         compilationRepository.deleteById(comId);
     }
 
-    @Transactional
     public CompilationDto updateCompilation(Long comId, UpdateCompilationRequest updateRequest) {
-        Compilation compilation = entityValidator.getCompilationIfExist(comId);
+        Compilation compilation = compilationPublicService.getCompilationIfExist(comId);
         if (updateRequest.getEvents() != null) {
             List<Event> events = eventRepository.findAllById(updateRequest.getEvents());
             compilation.setEvents(events);

@@ -2,10 +2,12 @@ package ru.practicum.ewm.model.event;
 
 import lombok.*;
 import ru.practicum.ewm.model.category.Category;
+import ru.practicum.ewm.model.eventLike.Like;
 import ru.practicum.ewm.model.user.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -36,6 +38,8 @@ public class Event {
     private boolean requestModeration;
     private String state;
     private String title;
+    @OneToMany(mappedBy = "event", fetch = FetchType.LAZY)
+    private List<Like> likes;
 
     @Override
     public boolean equals(Object o) {

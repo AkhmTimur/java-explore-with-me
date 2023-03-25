@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.event.EventFullDto;
-import ru.practicum.ewm.dto.event.EventPublicSearch;
+import ru.practicum.ewm.dto.event.EventSearch;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.model.event.Event;
@@ -15,7 +15,6 @@ import ru.practicum.ewm.stats.dto.HitDto;
 import ru.practicum.ewm.stats.stats.StatsClient;
 import ru.practicum.ewm.util.EventState;
 import ru.practicum.ewm.util.Sort;
-import ru.practicum.ewm.validator.EntityValidator;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -29,16 +28,15 @@ import static ru.practicum.ewm.mapper.EventMapper.eventToEventFullDto;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class EventPublicService {
     private final EventRepository eventRepository;
     private final StatsClient statsClient;
-    private final EntityValidator entityValidator;
     private final EventCommonService eventCommonService;
     private final RequestService requestService;
 
-    @Transactional(readOnly = true)
     public EventFullDto getEvent(Long eventId, HttpServletRequest request) {
-        Event event = entityValidator.getEventIfExist(eventId);
+        Event event = eventCommonService.getEventIfExist(eventId);
         if (!event.getState().equals(EventState.PUBLISHED.toString())) {
             throw new NotFoundException(event + " not found");
         }
@@ -58,37 +56,36 @@ public class EventPublicService {
         return eventFullDto;
     }
 
-
-    @Transactional(readOnly = true)
-    public List<EventFullDto> search(EventPublicSearch ev, String ip) {
+    public List<EventFullDto> search(EventSearch ev, String ip) {
         if (ev == null) {
             return Collections.emptyList();
         }
-        List<Event> events = eventRepository.publicSearch(ev.getText(), ev.getCategories(), ev.getPaid(),
-                ev.getRangeStart(), ev.getRangeEnd(), ev.getFrom(), ev.getSize());
+        List<Event> events = eventRepository.search(ev);
         if (events.isEmpty()) {
             return Collections.emptyList();
         }
-        List<EventFullDto> eventFullDtos = events.stream()
-                .map(EventMapper::eventToEventFullDto).collect(Collectors.toList());
+        List<EventFullDto> eventFullDtos = events.stream().map(EventMapper::eventToEventFullDto).collect(Collectors.toList());
         Map<Long, Long> views = eventCommonService.getStats(events, false);
         eventFullDtos.forEach(e -> e.setViews(views.get(e.getId())));
+        eventCommonService.setLikesToEventDtos(events, eventFullDtos);
         List<ParticipationRequest> confirmedRequests = requestService.findConfirmedRequests(events);
-        for (EventFullDto eventFullDto : eventFullDtos) {
-            eventFullDto.setConfirmedRequests((int) confirmedRequests.stream()
-                    .filter(r -> r.getEvent().getId().equals(eventFullDto.getId())).count());
-        }
+        Map<Long, Long> eventRequestsCount = confirmedRequests.stream().collect(Collectors.groupingBy(r -> r.getEvent().getId(), Collectors.counting()));
+        eventFullDtos.forEach(e -> e.setConfirmedRequests(eventRequestsCount.get(e.getId())));
         HitDto hitDto = HitDto.builder().app("APP_NAME").uri("/events").ip(ip).timestamp(LocalDateTime.now().withNano(0)).build();
         statsClient.createHit(hitDto);
-        events.forEach(e -> {
-            hitDto.setUri("/events/" + e.getId());
-            statsClient.createHit(hitDto);
-        });
-        if (ev.getSort() != null && ev.getSort().equals(Sort.VIEWS)) {
-            return eventFullDtos.stream()
-                    .sorted(Comparator.comparing(EventFullDto::getViews)).collect(Collectors.toList());
+        return eventFullDtos.stream().sorted(getComparator(ev.getSort())).collect(Collectors.toList());
+    }
+
+    private Comparator<EventFullDto> getComparator(Sort sort) {
+        switch (sort) {
+            case VIEWS:
+                return Comparator.comparing(EventFullDto::getViews);
+            case RATING:
+                return Comparator.comparing(EventFullDto::getLikesCount);
+            case EVENT_DATE:
+                return Comparator.comparing(EventFullDto::getEventDate);
+            default:
+                throw new IllegalArgumentException(String.format("Sort %s is unknown", sort));
         }
-        return eventFullDtos.stream()
-                .sorted(Comparator.comparing(EventFullDto::getEventDate)).collect(Collectors.toList());
     }
 }

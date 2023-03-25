@@ -39,8 +39,23 @@ public class EventPrivateController {
 
     @GetMapping
     public ResponseEntity<Object> getUserEvents(@PathVariable Long userId,
-                                                @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero long from,
-                                                @RequestParam(name = "size", defaultValue = "10") @Positive int size) {
-        return new ResponseEntity<>(eventPrivateService.getUserEvents(userId, from, size), HttpStatus.OK);
+                                                @RequestParam(name = "from", defaultValue = "0") @PositiveOrZero Integer from,
+                                                @RequestParam(name = "size", defaultValue = "10") @Positive Integer size,
+                                                @RequestParam(defaultValue = "false") Boolean isRating) {
+        return new ResponseEntity<>(eventPrivateService.getUserEvents(userId, from, size, isRating), HttpStatus.OK);
+    }
+
+    @PostMapping("/{eventId}/like")
+    public ResponseEntity<Object> addLikeToEvent(@PathVariable @NotNull Long userId,
+                                                 @PathVariable @NotNull Long eventId) {
+        eventPrivateService.addLikeToEvent(userId, eventId);
+        return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/{eventId}/like")
+    public ResponseEntity<Object> dislikeToEvent(@PathVariable @NotNull Long userId,
+                                                 @PathVariable @NotNull Long eventId) {
+        eventPrivateService.dislikeToEvent(userId, eventId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

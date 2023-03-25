@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.dto.event.EventAdminFindDto;
+import ru.practicum.ewm.dto.event.EventSearch;
 import ru.practicum.ewm.model.event.UpdateEventRequest;
 import ru.practicum.ewm.service.event.EventAdminService;
 
@@ -20,9 +20,8 @@ public class EventAdminController {
     private final EventAdminService eventAdminService;
 
     @GetMapping
-    public ResponseEntity<Object> findEvents(EventAdminFindDto eventAdminFindDto) {
-        return new ResponseEntity<>(eventAdminService
-                .findByAdmin(eventAdminFindDto), HttpStatus.OK);
+    public ResponseEntity<Object> findEvents(EventSearch eventSearch) {
+        return new ResponseEntity<>(eventAdminService.findByAdmin(eventSearch), HttpStatus.OK);
     }
 
     @PatchMapping("/{eventId}")

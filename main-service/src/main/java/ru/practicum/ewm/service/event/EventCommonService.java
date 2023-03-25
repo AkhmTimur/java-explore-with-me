@@ -6,15 +6,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.practicum.ewm.dto.event.EventFullDto;
 import ru.practicum.ewm.exception.DataConflictException;
+import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.model.category.Category;
 import ru.practicum.ewm.model.event.Event;
 import ru.practicum.ewm.model.event.UpdateEventRequest;
+import ru.practicum.ewm.model.eventLike.Like;
+import ru.practicum.ewm.repository.event.EventRepository;
+import ru.practicum.ewm.repository.like.LikeRepository;
+import ru.practicum.ewm.service.category.CategoryPublicService;
 import ru.practicum.ewm.stats.dto.HitCountDto;
 import ru.practicum.ewm.stats.dto.HitInDto;
 import ru.practicum.ewm.stats.stats.StatsClient;
 import ru.practicum.ewm.util.EventState;
-import ru.practicum.ewm.validator.EntityValidator;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -25,14 +29,16 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EventCommonService {
     private final StatsClient statsClient;
-    private final EntityValidator entityValidator;
+    private final EventRepository eventRepository;
+    private final CategoryPublicService categoryPublicService;
+    private final LikeRepository likeRepository;
 
     public Event setUpdateRequestParamToEvent(Event event, UpdateEventRequest updateEventRequest) {
         if (updateEventRequest.getAnnotation() != null) {
             event.setAnnotation(updateEventRequest.getAnnotation());
         }
         if (updateEventRequest.getCategory() != null) {
-            Category category = entityValidator.getCategoryIfExist(updateEventRequest.getCategory());
+            Category category = categoryPublicService.getCategoryIfExist(updateEventRequest.getCategory());
             event.setCategory(category);
         }
         if (updateEventRequest.getDescription() != null) {
@@ -76,26 +82,23 @@ public class EventCommonService {
         if (start.isEmpty()) {
             return new HashMap<>();
         }
+
         List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
         List<String> uris = eventIds.stream().map(id -> "/events/" + id).collect(Collectors.toList());
 
         ResponseEntity<Object> response = statsClient.getStats(new HitInDto(start.get(), LocalDateTime.now().withNano(0), uris, unique));
-        List<HitCountDto> stats;
+        Map<String, Long> stats;
         ObjectMapper mapper = new ObjectMapper();
         try {
-            stats = Arrays.asList(mapper.readValue(mapper.writeValueAsString(response.getBody()), HitCountDto[].class));
+            HitCountDto[] hitCountDtos = mapper.readValue(mapper.writeValueAsString(response.getBody()), HitCountDto[].class);
+            stats = Arrays.stream(hitCountDtos).collect(Collectors.toMap(HitCountDto::getUri, HitCountDto::getHits));
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage());
         }
 
         for (Long eventId : eventIds) {
-            Long views = 0L;
-            Optional<Long> stat = stats.stream()
-                    .filter(s -> s.getUri().equals("/events/" + eventId)).map(HitCountDto::getHits).findFirst();
-            if (stat.isPresent()) {
-                views = stat.get();
-            }
-            result.put(eventId, views);
+            Long stat = stats.getOrDefault("/events/" + eventId, 0L);
+            result.put(eventId, stat);
         }
 
         return result;
@@ -110,5 +113,17 @@ public class EventCommonService {
             eventFullDtos.forEach(e -> e.setViews(views.get(e.getId())));
         }
         return eventFullDtos;
+    }
+
+    public Event getEventIfExist(Long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException(Event.class.getSimpleName() + " not found"));
+    }
+
+    public void setLikesToEventDtos(List<Event> events, List<EventFullDto> eventFullDtos) {
+        List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
+        List<Like> likes = likeRepository.findByEventIdIn(eventIds);
+        Map<Long, Long> eventLikes = likes.stream().collect(Collectors.groupingBy(l -> l.getEvent().getId(), Collectors.counting()));
+        eventFullDtos.forEach(e -> e.setLikesCount(eventLikes.get(e.getId())));
     }
 }

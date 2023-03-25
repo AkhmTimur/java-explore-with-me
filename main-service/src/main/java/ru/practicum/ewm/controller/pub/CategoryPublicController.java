@@ -18,7 +18,7 @@ public class CategoryPublicController {
     private final CategoryPublicService categoryPublicService;
 
     @GetMapping
-    public ResponseEntity<Object> getCategories(@RequestParam(defaultValue = "0") @PositiveOrZero Long from,
+    public ResponseEntity<Object> getCategories(@RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
                                                 @RequestParam(defaultValue = "10") @Positive Integer size) {
         return new ResponseEntity<>(categoryPublicService.getCategories(from, size), HttpStatus.OK);
     }

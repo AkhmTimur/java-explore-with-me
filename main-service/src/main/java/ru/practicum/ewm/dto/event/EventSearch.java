@@ -16,9 +16,11 @@ import static ru.practicum.ewm.util.DateTimePattern.DATE_TIME_PATTERN;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class EventPublicSearch {
-    private String text;
+public class EventSearch {
+    List<Long> users;
+    List<String> states;
     private List<Long> categories;
+    private String text;
     private Boolean paid;
     @DateTimeFormat(pattern = DATE_TIME_PATTERN)
     private LocalDateTime rangeStart;

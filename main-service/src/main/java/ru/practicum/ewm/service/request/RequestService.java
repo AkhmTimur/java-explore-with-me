@@ -7,14 +7,16 @@ import ru.practicum.ewm.dto.request.EventRequestStatusUpdateRequest;
 import ru.practicum.ewm.dto.request.EventRequestStatusUpdateResult;
 import ru.practicum.ewm.dto.request.ParticipationRequestDto;
 import ru.practicum.ewm.exception.DataConflictException;
+import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.mapper.RequestMapper;
 import ru.practicum.ewm.model.event.Event;
 import ru.practicum.ewm.model.request.ParticipationRequest;
 import ru.practicum.ewm.model.user.User;
 import ru.practicum.ewm.repository.request.RequestRepository;
+import ru.practicum.ewm.service.event.EventCommonService;
+import ru.practicum.ewm.service.user.UserService;
 import ru.practicum.ewm.util.EventState;
 import ru.practicum.ewm.util.RequestStatus;
-import ru.practicum.ewm.validator.EntityValidator;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,14 +27,15 @@ import static ru.practicum.ewm.mapper.RequestMapper.requestToDto;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class RequestService {
     private final RequestRepository requestRepository;
-    private final EntityValidator entityValidator;
+    private final UserService userService;
+    private final EventCommonService eventCommonService;
 
-    @Transactional
     public ParticipationRequestDto addRequest(Long eventId, Long userId) {
-        User user = entityValidator.getUserIfExist(userId);
-        Event event = entityValidator.getEventIfExist(eventId);
+        User user = userService.getUserIfExist(userId);
+        Event event = eventCommonService.getEventIfExist(eventId);
         if (event.getEventDate().isBefore(LocalDateTime.now().withNano(0))) {
             throw new DataConflictException("Event date must be in the future");
         }
@@ -65,15 +68,15 @@ public class RequestService {
         return requestToDto(requestRepository.save(participationRequest));
     }
 
+    @Transactional(readOnly = true)
     public List<ParticipationRequest> findConfirmedRequests(List<Event> events) {
         List<ParticipationRequest> result = requestRepository.findAllByEventIn(events);
         return result.stream().filter(r -> r.getStatus().equals(RequestStatus.CONFIRMED)).collect(Collectors.toList());
     }
 
-    @Transactional
     public ParticipationRequestDto cancelRequest(Long requestId, Long userId) {
-        User user = entityValidator.getUserIfExist(userId);
-        ParticipationRequest request = entityValidator.getRequestIfExist(requestId);
+        User user = userService.getUserIfExist(userId);
+        ParticipationRequest request = getRequestIfExist(requestId);
         if (!user.equals(request.getRequester())) {
             throw new DataConflictException("Only requester can cancel request");
         }
@@ -89,8 +92,8 @@ public class RequestService {
 
     @Transactional(readOnly = true)
     public List<ParticipationRequestDto> getEventRequest(Long eventId, Long userId) {
-        Event event = entityValidator.getEventIfExist(eventId);
-        User user = entityValidator.getUserIfExist(userId);
+        Event event = eventCommonService.getEventIfExist(eventId);
+        User user = userService.getUserIfExist(userId);
         if (!user.equals(event.getInitiator())) {
             throw new DataConflictException("User isn't initiator");
         }
@@ -98,10 +101,9 @@ public class RequestService {
         return requests.stream().map(RequestMapper::requestToDto).collect(Collectors.toList());
     }
 
-    @Transactional
     public EventRequestStatusUpdateResult update(Long eventId, Long userId, EventRequestStatusUpdateRequest request) {
-        Event event = entityValidator.getEventIfExist(eventId);
-        User user = entityValidator.getUserIfExist(userId);
+        Event event = eventCommonService.getEventIfExist(eventId);
+        User user = userService.getUserIfExist(userId);
         if (!user.equals(event.getInitiator())) {
             throw new DataConflictException("User isn't initiator");
         }
@@ -143,4 +145,8 @@ public class RequestService {
         return updateResult;
     }
 
+    public ParticipationRequest getRequestIfExist(Long reqId) {
+        return requestRepository.findById(reqId)
+                .orElseThrow(() -> new NotFoundException(ParticipationRequest.class.getSimpleName() + " not found"));
+    }
 }
