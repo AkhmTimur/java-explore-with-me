@@ -73,19 +73,19 @@ public class EventPublicService {
         eventFullDtos.forEach(e -> e.setConfirmedRequests(eventRequestsCount.get(e.getId())));
         HitDto hitDto = HitDto.builder().app("APP_NAME").uri("/events").ip(ip).timestamp(LocalDateTime.now().withNano(0)).build();
         statsClient.createHit(hitDto);
-        if (ev.getSort() != null) {
-            if (ev.getSort().equals(Sort.VIEWS)) {
-                return eventFullDtos.stream()
-                        .sorted(Comparator.comparing(EventFullDto::getViews)).collect(Collectors.toList());
-            }
-            if (ev.getSort().equals(Sort.RATING)) {
-                return eventFullDtos.stream().filter(e -> e.getLikesCount() != null).sorted(Comparator.comparing(EventFullDto::getLikesCount)).collect(Collectors.toList());
-            }
-            if (ev.getSort().equals(Sort.EVENT_DATE)) {
-                return eventFullDtos.stream()
-                        .sorted(Comparator.comparing(EventFullDto::getEventDate)).collect(Collectors.toList());
-            }
+        return eventFullDtos.stream().sorted(getComparator(ev.getSort())).collect(Collectors.toList());
+    }
+
+    private Comparator<EventFullDto> getComparator(Sort sort) {
+        switch (sort) {
+            case VIEWS:
+                return Comparator.comparing(EventFullDto::getViews);
+            case RATING:
+                return Comparator.comparing(EventFullDto::getLikesCount);
+            case EVENT_DATE:
+                return Comparator.comparing(EventFullDto::getEventDate);
+            default:
+                throw new IllegalArgumentException(String.format("Sort %s is unknown", sort));
         }
-        return Collections.emptyList();
     }
 }

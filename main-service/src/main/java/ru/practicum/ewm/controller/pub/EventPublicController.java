@@ -39,10 +39,18 @@ public class EventPublicController {
                                          @RequestParam(required = false)
                                          @DateTimeFormat(pattern = DATE_TIME_PATTERN) LocalDateTime rangeEnd,
                                          @RequestParam(required = false) Boolean onlyAvailable,
-                                         @RequestParam(defaultValue = "EVENT_DATE") Sort sort,
+                                         @RequestParam(defaultValue = "EVENT_DATE") String sort,
                                          @RequestParam(defaultValue = "0") int from,
                                          @RequestParam(defaultValue = "10") int size,
                                          HttpServletRequest request) {
+        Sort sortType = Sort.EVENT_DATE;
+        switch (sort) {
+            case "VIEWS":
+                sortType = Sort.VIEWS;
+                break;
+            case "RATING":
+                sortType = Sort.RATING;
+        }
         EventSearch eventSearch = EventSearch.builder()
                 .text(text)
                 .categories(categories)
@@ -50,7 +58,7 @@ public class EventPublicController {
                 .rangeStart(rangeStart)
                 .rangeEnd(rangeEnd)
                 .onlyAvailable(onlyAvailable)
-                .sort(sort)
+                .sort(sortType)
                 .from(from)
                 .size(size)
                 .build();
